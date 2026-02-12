@@ -1,0 +1,145 @@
+04/02/2026 14:21:22 [JSON] REQUEST POST /descontos - BODY: {
+  "cpf": 750***334,
+  "campanha": "CAMPANHA_BRINDES"
+} 
+04/02/2026 14:21:24 [JSON] RESPONSE POST /descontos - BODY: {"cpf":"750***334","info":"Não existe campanha ativa para esse cpf (750***334)"}
+04/02/2026 14:42:06 [INFO] REQUEST GET /swagger/doc/html - Content-Type=
+04/02/2026 14:42:06 [JSON] RESPONSE GET /swagger/doc/html - BODY: <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>PriviConnect - API de Descontos</title>
+	<link rel="stylesheet" type="text/css" href="https://petstore.swagger.io/swagger-ui.css" >
+    <style>
+
+      html
+      {
+        box-sizing: border-box;
+        overflow: -moz-scrollbars-vertical;
+        overflow-y: scroll;
+      }
+
+      *,
+      *:before,
+      *:after
+      {
+        box-sizing: inherit;
+      }
+
+      body
+      {
+        margin:0;
+        background: #fafafa;
+      }
+	  
+    </style>
+  </head>
+
+  <body>
+    <div id="swagger-ui"></div>
+	<script src="https://petstore.swagger.io/swagger-ui-bundle.js"> </script>
+    <script src="https://petstore.swagger.io/swagger-ui-standalone-preset.js"> </script>
+    
+    <script>
+    window.onload = function() {
+      // Begin Swagger UI call region
+      const ui = SwaggerUIBundle({
+        url: "/swagger/doc/json", 
+        dom_id: '#swagger-ui',
+        docExpansion: 'list',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        plugins: [
+          SwaggerUIBundle.plugins.DownloadUrl
+        ],
+        layout: "StandaloneLayout"
+      })
+      // End Swagger UI call region
+
+      window.ui = ui
+    }
+  </script>
+  </body>
+</html>
+
+04/02/2026 14:42:07 [INFO] REQUEST GET /swagger/doc/json - Content-Type=
+04/02/2026 14:42:07 [INFO] RESPONSE GET /swagger/doc/json - sem corpo de resposta
+04/02/2026 14:49:37 [INFO] REQUEST GET /swagger/doc/html - Content-Type=
+04/02/2026 14:49:37 [JSON] RESPONSE GET /swagger/doc/html - BODY: <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>PriviConnect - API de Descontos</title>
+	<link rel="stylesheet" type="text/css" href="https://petstore.swagger.io/swagger-ui.css" >
+    <style>
+
+      html
+      {
+        box-sizing: border-box;
+        overflow: -moz-scrollbars-vertical;
+        overflow-y: scroll;
+      }
+
+      *,
+      *:before,
+      *:after
+      {
+        box-sizing: inherit;
+      }
+
+      body
+      {
+        margin:0;
+        background: #fafafa;
+      }
+	  
+    </style>
+  </head>
+
+  <body>
+    <div id="swagger-ui"></div>
+	<script src="https://petstore.swagger.io/swagger-ui-bundle.js"> </script>
+    <script src="https://petstore.swagger.io/swagger-ui-standalone-preset.js"> </script>
+    
+    <script>
+    window.onload = function() {
+      // Begin Swagger UI call region
+      const ui = SwaggerUIBundle({
+        url: "/swagger/doc/json", 
+        dom_id: '#swagger-ui',
+        docExpansion: 'list',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        plugins: [
+          SwaggerUIBundle.plugins.DownloadUrl
+        ],
+        layout: "StandaloneLayout"
+      })
+      // End Swagger UI call region
+
+      window.ui = ui
+    }
+  </script>
+  </body>
+</html>
+
+04/02/2026 14:49:38 [INFO] REQUEST GET /swagger/doc/json - Content-Type=
+04/02/2026 14:49:38 [INFO] RESPONSE GET /swagger/doc/json - sem corpo de resposta
+04/02/2026 14:57:19 [INFO] REQUEST GET /campanhas - Content-Type=
+04/02/2026 14:57:19 [JSON] RESPONSE GET /campanhas - BODY: [{"id":"CAMPANHA_CABELOS","descricao":"Progressivo Cabelos"},{"id":"CAMPANHA_PRIVILEGE","descricao":"Privilege"},{"id":"CAMPANHA_GESSO_PERFUMADO","descricao":"Gesso Perfumado"},{"id":"CAMPANHA_PREVAGING","descricao":"Progressivo Prev-Aging"},{"id":"CAMPANHA_POWERTRAINING","descricao":"Progressivo Performance"},{"id":"CAMPANHA_CREATINA_2026","descricao":"Creatina 2026"},{"id":"CAMPANHA_STICK_BOLSA_PRAIA","descricao":"Stick Bolsa Praia"},{"id":"CAMPANHA_CAMPANHAS","descricao":"Campanha"},{"id":"CAMPANHA_PERFORMANCE","descricao":"Progressivo Performance"},{"id":"CAMPANHA_PROGRESSIVO","descricao":"Progressivo"},{"id":"CAMPANHA_PHARMAPET","descricao":"Pharmapet"},{"id":"CAMPANHA_BRINDES","descricao":"Brindes"},{"id":"CAMPANHA_CLEAN_THERAPY","descricao":"Progressivo CleanTherapy"},{"id":"CAMPANHA_PRESENTES","descricao":"Progressivo Presentes"},{"id":"CAMPANHA_CLONE_ALMOFADA","descricao":"Clone Almofada"},{"id":"CAMPANHA_COLAGENO","descricao":"Progressivo Colágeno"},{"id":"CAMPANHA_CARNAVAL_2026","descricao":"Carnaval 2026"}]
+04/02/2026 16:11:35 [JSON] REQUEST POST /descontos - BODY: {
+  "cpf": ***,
+  "campanha": "string",
+  "produtos": [
+    {
+      "codigo": ***
+    }
+  ]
+}
+04/02/2026 16:11:36 [JSON] RESPONSE POST /descontos - BODY: {"erro":"Campanha \"string\" não é conhecida pela API do PriviConnect."}

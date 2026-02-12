@@ -1,0 +1,805 @@
+unit uPrincipal;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ComCtrls, Grids, DBGrids, DB, ExtCtrls, Buttons, clipbrd,
+  WinSkinData, pngimage, Menus, IBCustomDataSet, IBQuery;
+
+type
+  TfrmPrincipal = class(TForm)
+    pnlPrincipal: TPanel;
+    dsDbgrid: TDataSource;
+    dbgTerminal: TDBGrid;
+    Panel2: TPanel;
+    StatusBar1: TStatusBar;
+    GroupBox1: TGroupBox;
+    edtTerminalBalcao: TEdit;
+    Panel1: TPanel;
+    Panel3: TPanel;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    btInsereDesconto: TSpeedButton;
+    SkinData1: TSkinData;
+    Shape1: TShape;
+    Shape2: TShape;
+    Shape3: TShape;
+    lblBalcao: TLabel;
+    lblDesconto: TLabel;
+    lblFinal: TLabel;
+    Image1: TImage;
+    MainMenu1: TMainMenu;
+    Relatrios1: TMenuItem;
+    DescontosConcedidos1: TMenuItem;
+    qryTerminalBalcao: TIBQuery;
+    TimerAbertura: TTimer;
+    TimerHorario: TTimer;
+    Administrao1: TMenuItem;
+    CodBarrasFuncionarios1: TMenuItem;
+    Arquivo1: TMenuItem;
+    Solicitao1: TMenuItem;
+    GroupBox2: TGroupBox;
+    cbParentesco: TComboBox;
+    SolicitaesAbertas1: TMenuItem;
+    ConfigAlertas1: TMenuItem;
+    edtLoja: TEdit;
+    ControledeCartes1: TMenuItem;
+    Label4: TLabel;
+    rgtpDesc: TRadioGroup;
+    lblDescontoValor: TLabel;
+    qryInsereDesconto: TIBQuery;
+    lblDescontoValorBioneov: TLabel;
+    lblDescontovarejo: TLabel;
+    ImprimirCodBarras1: TMenuItem;
+    lblValorVarejo: TLabel;
+    qrySelecionaDesconto: TIBQuery;
+    qryFcertaTEMP: TIBQuery;
+    qryPrivilegeTEMP: TIBQuery;
+    qryLimpaPrivilege: TIBQuery;
+    qryConsultaDescPrivilege: TIBQuery;
+    procedure edtTerminalBalcaoKeyPress(Sender: TObject; var Key: Char);
+    procedure localizarbalcao(balcao:string);
+    procedure btInsereDescontoClick(Sender: TObject);
+    procedure TimerAberturaTimer(Sender: TObject);
+    procedure TimerHorarioTimer(Sender: TObject);
+    procedure DescontosConcedidos1Click(Sender: TObject);
+    procedure CodBarrasFuncionarios1Click(Sender: TObject);
+    procedure Solicitao1Click(Sender: TObject);
+    procedure SolicitaesAbertas1Click(Sender: TObject);
+    procedure ConfigAlertas1Click(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure edtTerminalBalcaoChange(Sender: TObject);
+    procedure ControledeCartes1Click(Sender: TObject);
+    procedure DescontoPromocional;
+    procedure DescontoPromocional2;
+    procedure DescontoPromocional3;
+    procedure DescontoHidraTherapy;
+    procedure DescontoFuncionarios;
+    procedure ImprimirCodBarras1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmPrincipal: TfrmPrincipal;
+  vrtot,desconto:double;
+
+implementation
+
+uses udmDescontos, uCartaoDesconto, uSenha, uRelatorio, uCodBarras,
+  usolicitacao, uSolicitAbertas, uAlertas, uRelatorioControle,
+  uDescontoCRM, uImprimeCodBarrasCRM;
+
+{$R *.dfm}
+
+
+procedure TfrmPrincipal.localizarbalcao(balcao:string);
+var desconto:double;
+    descontovarejo,vrtotvarejo:double;
+
+begin
+   qryTerminalBalcao.Close;
+   qryTerminalBalcao.Transaction.Commit;
+   if trim(edtTerminalBalcao.Text)<>'' then
+    begin
+       qryTerminalBalcao.SQL.Text:= ' select fc32110.CDFIL,fc32110.CDTML,fc32110.DTOPE,fc32110.OPERID,fc32110.NRCPM,fc32110.ITEMID,fc32110.TPITM,fc32110.CDPRO,fc32110.QUANT,fc32110.PRUNI,fc32110.TPDSC,coalesce(fc32110.VRDSC+'+
+       ' coalesce((select fc32200.vrdsc from fc32200 where fc32200.cdfil=fc32110.cdfil and fc32200.cdtml=fc32110.cdtml '+
+        ' and fc32200.dtope=fc32110.dtope and fc32200.operid=fc32110.operid and  fc32200.nrcpm=fc32110.nrcpm and '+
+        ' fc32200.itemid=fc32110.itemid),0),0) as VRDSC,fc32110.VRLIQ,fc32110.VRCXA,fc32110.TPDSCG,fc32110.VRDSCG,fc32110.CDTXAG,fc32110.VRTXAG,fc32110.TPPAG,fc32110.VRTOT,fc32110.CDTXA,fc32110.VRTXA,fc32110.VRDSCV,fc32110.VRTXAV,'+
+        ' fc32110.VRLIQ+coalesce(fc32110.VRDSC,fc32110.VRTOT*0,2) +coalesce((select fc32200.vrdsc from fc32200 where fc32200.cdfil=fc32110.cdfil and fc32200.cdtml=fc32110.cdtml and fc32200.dtope=fc32110.dtope and fc32200.operid=fc32110.operid and '+
+        ' fc32200.nrcpm=fc32110.nrcpm and fc32200.itemid=fc32110.itemid),0) as SEMDESCONTO, '+
+        ' coalesce((select fc03000.descr from fc03000 where cdpro=fc32110.cdpro and fc32110.tpitm='+QuotedStr('V')+'),'+quotedstr('FÓRMULA MANIPULADA (A VISTA)')+') as DESCRPRD, coalesce(fc32110.ptdsc,0) as ptdsc,fc32100.cdcli,fc07000.nomecli ';
+       qryTerminalBalcao.SQL.add (  ' from fc32110,fc32100,fc07000 where fc07000.cdcli=fc32100.cdcli and fc32100.cdfil=fc32110.cdfil and fc32100.cdtml=fc32110.cdtml and fc32100.dtope=fc32110.dtope and fc32100.operid=fc32110.operid and fc32100.nrcpm=fc32110.nrcpm and ');
+       qryTerminalBalcao.SQL.add (  ' fc32110.nrcpm='+trim(balcao));
+       qryTerminalBalcao.SQL.add (  ' and fc32110.cdfil='+trim(edtLoja.Text));
+       qryTerminalBalcao.SQL.add (  ' and fc32110.dtope='+QuotedStr(FormatDateTime('dd.mm.yyyy',now)));
+       qryTerminalBalcao.SQL.add (  ' order by fc32110.cdpro');
+       qryTerminalBalcao.Open;
+   //   clipboard.astext := qryTerminalBalcao.SQL.Text;
+
+ if  qryTerminalBalcao.IsEmpty then ShowMessage('Terminal Balcão não encontrado no dia de hoje')
+  else
+     begin
+       nomecli:=qryTerminalBalcao.FieldValues['nomecli'];
+       lblBalcao.Caption         := 'R$ 0,00';
+       lblDesconto.Caption       := 'R$ 0,00';
+       lblFinal.Caption          := 'R$ 0,00';
+       lblDescontovarejo.caption := 'R$ 0,00';
+       lblDescontoValorBioneov.caption := 'R$ 0,00';
+       lblDescontoValor.caption := 'R$ 0,00';
+       lblValorVarejo.caption := 'R$ 0,00';
+       TNumericField(qryTerminalBalcao.FieldByName('pruni')).DisplayFormat := ',0.00;-,0.00';
+       TNumericField(qryTerminalBalcao.FieldByName('SEMDESCONTO')).DisplayFormat := ',0.00;-,0.00';
+       TNumericField(qryTerminalBalcao.FieldByName('vrdsc')).DisplayFormat := ',0.00;-,0.00';
+       qryTerminalBalcao.First;
+       vrtot:=0;
+       desconto:=0;
+       descontovarejo:=0;
+       vrtotvarejo :=0;
+       while not qryTerminalBalcao.Eof do
+        begin
+          vrtot:= vrtot+qryTerminalBalcao.FieldValues['SEMDESCONTO'];
+
+         desconto:=desconto+qryTerminalBalcao.FieldValues['vrdsc'];
+
+         if ( (qryTerminalBalcao.FieldValues['CDPRO']=5048) or
+              (qryTerminalBalcao.FieldValues['CDPRO']=5049) or
+              (qryTerminalBalcao.FieldValues['CDPRO']=5050) or
+              (qryTerminalBalcao.FieldValues['CDPRO']=5051) or
+              (qryTerminalBalcao.FieldValues['CDPRO']=5052) or
+              (qryTerminalBalcao.FieldValues['CDPRO']=3640) or
+              (qryTerminalBalcao.FieldValues['CDPRO']=3641) ) then descontovarejo:=descontovarejo+qryTerminalBalcao.FieldValues['vrdsc'];
+
+         if qryTerminalBalcao.FieldValues['tpitm']='V' then vrtotvarejo:= vrtotvarejo+qryTerminalBalcao.FieldValues['SEMDESCONTO'];
+
+         qryTerminalBalcao.Next;
+        end;
+       qryTerminalBalcao.First;
+       lblDesconto.Caption := floattostrf(desconto, ffcurrency, 15, 2);
+       lblBalcao.Caption   := floattostrf(vrtot, ffcurrency, 15, 2);
+       lblFinal.Caption    := floattostrf(vrtot-desconto, ffcurrency, 15, 2);
+       lblDescontovarejo.Caption := floattostrf(descontovarejo, ffcurrency, 15, 2);
+       lblValorVarejo.Caption := floattostr(vrtotvarejo);
+       valoratual:=vrtot;
+       cbParentesco.Enabled:=true;
+       cbParentesco.Color:=clWindow;
+     end;
+    end;
+end;
+
+procedure TfrmPrincipal.edtTerminalBalcaoKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+
+ if not(key in ['0'..'9',#8,#13]) then key := #0
+  else
+    qryTerminalBalcao.Close;
+
+ if key=#13 then
+   begin
+    if trim(edtTerminalBalcao.Text) <>'' then
+     begin
+      localizarbalcao(edtTerminalBalcao.Text);
+     end;
+   end;
+
+end;
+
+
+procedure TfrmPrincipal.DescontoPromocional3;
+
+function TrocaVirgPPto(Valor: string): String;
+var i:integer;
+begin
+if valor=null then valor:='0';
+    if Valor <>'' then begin
+        for i := 0 to Length(Valor) do begin
+            if Valor[i]=',' then Valor[i]:='.';
+
+        end;
+     end;
+     Result := valor;
+end;
+
+ var valortotal : double;
+              p : integer;
+begin
+
+lblDescontoValor.Caption := '0';
+p:=0;
+
+with qryTerminalBalcao do
+begin
+
+ First;
+ while not EOF do
+   begin
+     if (FieldValues['CDPRO'] = 3640) or (FieldValues['CDPRO'] = 3641)   then
+      begin
+        p:=p+FieldValues['QUANT'];
+      end;
+    next;
+   end;
+
+
+end;
+
+
+if (p<2) then raise exception.create('Não existem produtos suficientes da linha BIONEOV nessa venda. Total:'+inttostr(p));
+
+lblDescontoValor.Caption := TrocaVirgPPto(floattostr((50 * (p div 2)) / p)) ;
+
+if (lblDescontoValor.Caption <> '0') then
+if MessageDlg('Deseja confirmar desconto de R$ '+floattostr(34.5*(p div 2))+' relativo ao Bioneov?',mtconfirmation,[mbYes,MbNo],0)=mryes then
+      begin
+
+        qryInsereDesconto.Close;
+        qryInsereDesconto.SQL.Text := 'update fc32110 set pruniliq=(pruni)-(pruni*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+')), vrcxa=(vrtot)-(vrtot*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+')), vrliq=(vrtot)-(vrtot*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+')), vrdsc=(pruni*quant*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+')), PTDSC='+lblDescontoValor.Caption+', BCPIS=(VRCXA-(pruni*quant*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+'))), VRPIS=(((VRCXA-(pruni*quant*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+'))))*ALPIS)/100,BCCOFINS=(VRCXA-(pruni*quant*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+'))),'+
+        ' BCICM=(VRCXA-(pruni*quant*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+'))),VRCOFINS=(((VRCXA-(pruni*quant*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+'))))*ALCOFINS)/100 where tpitm='+quotedstr('V')+' and cdfil='+trim(frmPrincipal.edtLoja.Text)+' and nrcpm='+trim(frmPrincipal.edtTerminalBalcao.Text)+' and dtope='+QuotedStr(FormatDateTime('dd.mm.yyyy',now))+' and cdpro in (3640,3641)' ;
+//        Clipboard.AsText := qryInsereDesconto.SQL.Text;
+
+        qryInsereDesconto.Open;
+        qryInsereDesconto.Transaction.CommitRetaining;
+        qryInsereDesconto.Close;
+
+        qryInsereDesconto.Close;
+        qryInsereDesconto.SQL.Text := 'update fc32110 set pruniliq=(pruni)-(pruni*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+')),BCICM=((pruni)-(pruni*quant*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+'))),vrtot=((pruni*quant)-(pruni*quant*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+'))), vrcxa=((pruni)-(pruni*quant*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+'))), vrliq=((pruni)-(pruni*quant*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+'))), pruni=(pruni)-(pruni*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+'))'+
+                                       ' where tpitm='+quotedstr('R')+' and cdfil='+trim(frmPrincipal.edtLoja.Text)+' and nrcpm='+trim(frmPrincipal.edtTerminalBalcao.Text)+' and dtope='+QuotedStr(FormatDateTime('dd.mm.yyyy',now))+' and cdpro in (3640,3641)' ;
+        qryInsereDesconto.Open;
+        qryInsereDesconto.Transaction.CommitRetaining;
+        qryInsereDesconto.Close;
+
+        qryInsereDesconto.Close;
+        qryInsereDesconto.SQL.Text := 'select sum(vrliq) as VALOR from fc32110 where  cdfil='+trim(frmPrincipal.edtLoja.Text)+' and nrcpm='+trim(frmPrincipal.edtTerminalBalcao.Text)+' and dtope='+QuotedStr(FormatDateTime('dd.mm.yyyy',now)) ;
+        qryInsereDesconto.Open;
+        valortotal := qryInsereDesconto.FieldValues['VALOR'];
+        qryInsereDesconto.Close;
+
+        qryInsereDesconto.Close;
+        qryInsereDesconto.SQL.Text := 'update fc32100 set useridaut='+quotedstr('bioneov')+', vrtot='+quotedstr(TrocaVirgPPto(FloatToStr(valortotal)))+', vrliq='+quotedstr(TrocaVirgPPto(FloatToStr(valortotal)))+',vrcxa='+quotedstr(TrocaVirgPPto(FloatToStr(valortotal)))+', vrarc='+quotedstr(TrocaVirgPPto(FloatToStr(valortotal)))+' where  cdfil='+trim(frmPrincipal.edtLoja.Text)+' and nrcpm='+trim(frmPrincipal.edtTerminalBalcao.Text)+' and dtope='+QuotedStr(FormatDateTime('dd.mm.yyyy',now)) ;
+        qryInsereDesconto.Open;
+        qryInsereDesconto.Transaction.CommitRetaining;
+        qryInsereDesconto.Close;
+
+        showmessage('DESCONTO CONCEDIDO COM SUCESSO!');
+
+      end;
+
+end;
+
+
+procedure TfrmPrincipal.DescontoHidraTherapy;
+
+function TrocaVirgPPto(Valor: string): String;
+var i:integer;
+begin
+if valor=null then valor:='0';
+    if Valor <>'' then begin
+        for i := 0 to Length(Valor) do begin
+            if Valor[i]=',' then Valor[i]:='.';
+
+        end;
+     end;
+     Result := valor;
+end;
+
+ var valortotal,valordescun : double;
+              p : integer;
+begin
+
+lblDescontoValor.Caption := '0';
+p:=0;
+
+with qryTerminalBalcao do
+begin
+
+ First;
+ while not EOF do
+   begin
+     if (FieldValues['CDPRO'] = 3770) or (FieldValues['CDPRO'] = 3768) or
+        (FieldValues['CDPRO'] = 3767) or (FieldValues['CDPRO'] = 3774) or
+        (FieldValues['CDPRO'] = 3775) or (FieldValues['CDPRO'] = 3776) or
+        (FieldValues['CDPRO'] = 3772) or (FieldValues['CDPRO'] = 3771) or (FieldValues['CDPRO'] = 3769)  then
+      begin
+        p:=p+FieldValues['QUANT'];
+      end;
+    next;
+   end;
+
+
+end;
+
+
+if (p<3) then raise exception.create('Não existem produtos suficientes da linha Hidra Therapy nessa venda. Total:'+inttostr(p));
+
+lblDescontoValor.Caption := TrocaVirgPPto( FloatToStr(45.9 * (p div 3))  ) ;
+
+if (lblDescontoValor.Caption <> '0') then
+if MessageDlg('Deseja confirmar desconto de R$ '+floattostr(45.9 *(p div 3))+' relativo a linha Hidra Therapy?',mtconfirmation,[mbYes,MbNo],0)=mryes then
+      begin
+        valordescun:= (45.9 *(p div 3))/p;
+
+        qryInsereDesconto.Close;
+        qryInsereDesconto.SQL.Text := 'update fc32110 set ptdsc='+TrocaVirgPPto(FloatToStr( (valordescun*100)/45.9 )) +',  pruniliq=(pruni)-('+TrocaVirgPPto(FloatToStr( valordescun )) +'), vrcxa=(vrtot)-(quant*'+TrocaVirgPPto(FloatToStr( valordescun  )) +'), vrliq=(vrtot)-(quant*'+TrocaVirgPPto(FloatToStr( valordescun  )) +'), vrdsc=(quant*('+TrocaVirgPPto(FloatToStr( valordescun  )) +')),  BCPIS=(VRCXA-(quant*('+TrocaVirgPPto(FloatToStr( valordescun  )) +'))), VRPIS=((VRCXA-(quant*('+TrocaVirgPPto(FloatToStr( valordescun  )) +')))*ALPIS)/100,BCCOFINS=(VRCXA-(quant*('+TrocaVirgPPto(FloatToStr( valordescun  )) +'))),'+
+        ' BCICM=(VRCXA-(quant*('+TrocaVirgPPto(FloatToStr( valordescun  )) +'))),VRCOFINS=((VRCXA-(quant*('+TrocaVirgPPto(FloatToStr( valordescun  )) +')))*ALCOFINS)/100 where tpitm='+quotedstr('V')+' and cdfil='+trim(frmPrincipal.edtLoja.Text)+' and nrcpm='+trim(frmPrincipal.edtTerminalBalcao.Text)+' and dtope='+QuotedStr(FormatDateTime('dd.mm.yyyy',now))+' and cdpro in (3770,3768,3767,3774,3775,3776,3772,3771,3769)' ;
+//        Clipboard.AsText := qryInsereDesconto.SQL.Text;
+
+        qryInsereDesconto.Open;
+        qryInsereDesconto.Transaction.CommitRetaining;
+        qryInsereDesconto.Close;
+
+        qryInsereDesconto.Close;
+        qryInsereDesconto.SQL.Text := 'select sum(vrliq) as VALOR from fc32110 where  cdfil='+trim(frmPrincipal.edtLoja.Text)+' and nrcpm='+trim(frmPrincipal.edtTerminalBalcao.Text)+' and dtope='+QuotedStr(FormatDateTime('dd.mm.yyyy',now)) ;
+        qryInsereDesconto.Open;
+        valortotal := qryInsereDesconto.FieldValues['VALOR'];
+        qryInsereDesconto.Close;
+
+        qryInsereDesconto.Close;
+        qryInsereDesconto.SQL.Text := 'update fc32100 set useridaut='+quotedstr('hidratherapy')+', vrtot='+quotedstr(TrocaVirgPPto(FloatToStr(valortotal)))+', vrliq='+quotedstr(TrocaVirgPPto(FloatToStr(valortotal)))+',vrcxa='+quotedstr(TrocaVirgPPto(FloatToStr(valortotal)))+', vrarc='+quotedstr(TrocaVirgPPto(FloatToStr(valortotal)))+' where  cdfil='+trim(frmPrincipal.edtLoja.Text)+' and nrcpm='+trim(frmPrincipal.edtTerminalBalcao.Text)+' and dtope='+QuotedStr(FormatDateTime('dd.mm.yyyy',now)) ;
+        qryInsereDesconto.Open;
+        qryInsereDesconto.Transaction.CommitRetaining;
+        qryInsereDesconto.Close;
+
+        showmessage('DESCONTO CONCEDIDO COM SUCESSO!');
+
+      end;
+
+end;
+
+
+procedure TfrmPrincipal.DescontoPromocional;
+
+function TrocaVirgPPto(Valor: string): String;
+var i:integer;
+begin
+if valor=null then valor:='0';
+    if Valor <>'' then begin
+        for i := 0 to Length(Valor) do begin
+            if Valor[i]=',' then Valor[i]:='.';
+
+        end;
+     end;
+     Result := valor;
+end;
+
+ var valortotal : double;
+
+begin
+
+lblDescontoValor.Caption := '0';
+lblDescontoValorBioneov.Caption := '0';
+
+with qryTerminalBalcao do
+begin
+
+ First;
+ while not EOF do
+   begin
+     if (FieldValues['CDPRO'] = 5048) or (FieldValues['CDPRO'] = 5049) or (FieldValues['CDPRO'] = 5050) or (FieldValues['CDPRO'] = 5051) or (FieldValues['CDPRO'] = 5052)   then
+        lblDescontoValor.Caption := inttostr(strtoint(lblDescontoValor.Caption)+10*(FieldValues['QUANT']) );
+    next;
+   end;
+
+
+end;
+
+
+if (lblDescontoValor.Caption = '0') then raise exception.create('Não existem produtos da linha Capsolution nessa venda');
+
+if strtoint(lblDescontoValor.Caption)>30 then lblDescontoValor.Caption:='30';
+
+
+if (lblDescontoValor.Caption <> '0') then
+if MessageDlg('Deseja confirmar desconto de '+lblDescontoValor.Caption+'% relativo ao Capsolution?',mtconfirmation,[mbYes,MbNo],0)=mryes then
+      begin
+
+        qryInsereDesconto.Close;
+        qryInsereDesconto.SQL.Text := 'update fc32110 set pruniliq=(pruni)-(pruni*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+')), vrcxa=(vrtot)-(vrtot*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+')), vrliq=(vrtot)-(vrtot*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+')), vrdsc=(pruni*quant*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+')), PTDSC='+lblDescontoValor.Caption+', BCPIS=(VRCXA-(pruni*quant*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+'))), VRPIS=(((VRCXA-(pruni*quant*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+'))))*ALPIS)/100,BCCOFINS=(VRCXA-(pruni*quant*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+'))),'+
+        ' BCICM=(VRCXA-(pruni*quant*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+'))),VRCOFINS=(((VRCXA-(pruni*quant*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+'))))*ALCOFINS)/100 where tpitm='+quotedstr('V')+' and cdfil='+trim(frmPrincipal.edtLoja.Text)+' and nrcpm='+trim(frmPrincipal.edtTerminalBalcao.Text)+' and dtope='+QuotedStr(FormatDateTime('dd.mm.yyyy',now))+' and cdpro in (5048,5049,5050,5051,5052)' ;
+        qryInsereDesconto.Open;
+        qryInsereDesconto.Transaction.CommitRetaining;
+        qryInsereDesconto.Close;
+
+        qryInsereDesconto.Close;
+        qryInsereDesconto.SQL.Text := 'update fc32110 set pruniliq=(pruni)-(pruni*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+')),BCICM=((pruni)-(pruni*quant*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+'))),vrtot=((pruni*quant)-(pruni*quant*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+'))), vrcxa=((pruni)-(pruni*quant*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+'))), vrliq=((pruni)-(pruni*quant*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+'))), pruni=(pruni)-(pruni*('+TrocaVirgPPto(FloatToStr(StrToInt(copy(lblDescontoValor.Caption,1,2))*0.01))+'))'+
+                                       ' where tpitm='+quotedstr('R')+' and cdfil='+trim(frmPrincipal.edtLoja.Text)+' and nrcpm='+trim(frmPrincipal.edtTerminalBalcao.Text)+' and dtope='+QuotedStr(FormatDateTime('dd.mm.yyyy',now))+' and cdpro in (5048,5049,5050,5051,5052)' ;
+        qryInsereDesconto.Open;
+        qryInsereDesconto.Transaction.CommitRetaining;
+        qryInsereDesconto.Close;
+
+        qryInsereDesconto.Close;
+        qryInsereDesconto.SQL.Text := 'select sum(vrliq) as VALOR from fc32110 where  cdfil='+trim(frmPrincipal.edtLoja.Text)+' and nrcpm='+trim(frmPrincipal.edtTerminalBalcao.Text)+' and dtope='+QuotedStr(FormatDateTime('dd.mm.yyyy',now)) ;
+        qryInsereDesconto.Open;
+        valortotal := qryInsereDesconto.FieldValues['VALOR'];
+        qryInsereDesconto.Close;
+
+        qryInsereDesconto.Close;
+        qryInsereDesconto.SQL.Text := 'update fc32100 set useridaut='+quotedstr('capsolution')+', vrtot='+quotedstr(TrocaVirgPPto(FloatToStr(valortotal)))+', vrliq='+quotedstr(TrocaVirgPPto(FloatToStr(valortotal)))+',vrcxa='+quotedstr(TrocaVirgPPto(FloatToStr(valortotal)))+', vrarc='+quotedstr(TrocaVirgPPto(FloatToStr(valortotal)))+' where  cdfil='+trim(frmPrincipal.edtLoja.Text)+' and nrcpm='+trim(frmPrincipal.edtTerminalBalcao.Text)+' and dtope='+QuotedStr(FormatDateTime('dd.mm.yyyy',now)) ;
+        qryInsereDesconto.Open;
+        qryInsereDesconto.Transaction.CommitRetaining;
+        qryInsereDesconto.Close;
+
+        showmessage('DESCONTO CONCEDIDO COM SUCESSO!');
+
+      end;
+
+end;
+
+procedure TfrmPrincipal.DescontoPromocional2;
+function TrocaVirgPPto(Valor: string): String;
+   var i:integer;
+begin
+if valor=null then valor:='0';
+    if Valor <>'' then begin
+        for i := 0 to Length(Valor) do begin
+            if Valor[i]=',' then Valor[i]:='.';
+
+        end;
+     end;
+     Result := valor;
+end;
+
+ var valortotal : double;
+     qtdprodpromocao,i:integer;
+ begin
+
+  qtdprodpromocao:=0;
+  lblDescontoValor.Caption := '0';
+
+  with qryTerminalBalcao do
+  begin
+
+   First;
+
+   while not EOF do
+     begin
+       if (FieldValues['CDPRO'] = 4695) or (FieldValues['CDPRO'] = 4696) or (FieldValues['CDPRO'] = 4697) or (FieldValues['CDPRO'] = 4699) or (FieldValues['CDPRO'] = 4701)
+         or (FieldValues['CDPRO'] = 4702) or (FieldValues['CDPRO'] = 4694) or (FieldValues['CDPRO'] = 4700)   then
+        begin
+          if (FieldValues['VRDSC'])>0 then lblDescontoValor.Caption := FloatToStr(StrToFloat(lblDescontoValor.Caption)+(FieldValues['VRDSC']) );
+          qtdprodpromocao:=qtdprodpromocao+FieldValues['QUANT'];
+        end;
+      next;
+     end;
+
+ if ( qtdprodpromocao < 3 ) then raise exception.create('Não existem produtos suficiente da linha Hidrasoft para incluir descontos nessa venda');
+
+ if ( lblDescontoValor.Caption <> '0' ) then raise exception.create('Já existem descontos lançados para linha Hidrasoft nessa venda');
+
+ qtdprodpromocao := (qtdprodpromocao div 3);
+ lblDescontoValor.Caption := floattostr( qtdprodpromocao * 27.89 );
+
+ if (lblDescontoValor.Caption <> '0') then
+ if MessageDlg('Deseja confirmar desconto relativo a linha Hidrasoft?',mtconfirmation,[mbYes,MbNo],0)=mryes then
+      begin
+
+        qrySelecionaDesconto.Close;
+        qrySelecionaDesconto.sql.Text := 'select * from fc32110 where tpitm='+quotedstr('V')+' and cdfil='+trim(frmPrincipal.edtLoja.Text)+' and nrcpm='+trim(frmPrincipal.edtTerminalBalcao.Text)+' and dtope='+QuotedStr(FormatDateTime('dd.mm.yyyy',now))+' and cdpro in (4695,4696)' ;
+        qrySelecionaDesconto.Open;
+
+        if qrySelecionaDesconto.IsEmpty then  raise exception.create('Inclua o hidrasoft para mãos ou pés na venda e tente novamente');
+
+        qrySelecionaDesconto.FetchAll;
+
+        qrySelecionaDesconto.First;
+
+        if qrySelecionaDesconto.RecordCount<qtdprodpromocao then raise exception.create('Inclua '+inttostr(qtdprodpromocao)+' produtos para mãos ou pés na venda para entregar ao cliente');
+
+        for i:=1 to qtdprodpromocao do
+         begin
+            qryInsereDesconto.Close;
+            qryInsereDesconto.SQL.Text := 'update fc32110 set pruniliq=(pruniliq-(pruniliq-0.01)),ptdsc=99.97 ,tpdsc='+quotedstr('3')+' ,vrcxa=(vrtot-(vrtot-0.01)), vrliq=(vrtot-(vrtot-0.01)), vrdsc=(27.89), BCPIS=(0.01), VRPIS=(0.01),BCCOFINS=(0.01), '+
+            ' BCICM=(0.01),VRCOFINS=(0.01) where cdfil='+inttostr(qrySelecionaDesconto.FieldValues['cdfil'])+' and cdtml='+quotedstr(qrySelecionaDesconto.FieldValues['cdtml'])+' and dtope='+quotedstr(FormatDateTime('dd.mm.yyyy',qrySelecionaDesconto.FieldValues['dtope']))+' and operid='+inttostr(qrySelecionaDesconto.FieldValues['operid'])+' and nrcpm='+inttostr(qrySelecionaDesconto.FieldValues['nrcpm'])+' and itemid='+inttostr(qrySelecionaDesconto.FieldValues['itemid']);
+            qryInsereDesconto.Open;
+            qryInsereDesconto.Transaction.CommitRetaining;
+            qryInsereDesconto.Close;
+
+            qrySelecionaDesconto.Next;
+            if qrySelecionaDesconto.Eof then qrySelecionaDesconto.First;
+         end;
+
+        qrySelecionaDesconto.First;
+
+
+
+        qryInsereDesconto.Close;
+        qryInsereDesconto.SQL.Text := 'select sum(vrliq) as VALOR from fc32110 where  cdfil='+trim(frmPrincipal.edtLoja.Text)+' and nrcpm='+trim(frmPrincipal.edtTerminalBalcao.Text)+' and dtope='+QuotedStr(FormatDateTime('dd.mm.yyyy',now)) ;
+        qryInsereDesconto.Open;
+        valortotal := qryInsereDesconto.FieldValues['VALOR'];
+        qryInsereDesconto.Close;
+
+        qryInsereDesconto.Close;
+        qryInsereDesconto.SQL.Text := 'update fc32100 set useridaut='+quotedstr('hidrasoft')+', vrtot='+quotedstr(TrocaVirgPPto(FloatToStr(valortotal)))+', vrliq='+quotedstr(TrocaVirgPPto(FloatToStr(valortotal)))+',vrcxa='+quotedstr(TrocaVirgPPto(FloatToStr(valortotal)))+', vrarc='+quotedstr(TrocaVirgPPto(FloatToStr(valortotal)))+' where  cdfil='+trim(frmPrincipal.edtLoja.Text)+' and nrcpm='+trim(frmPrincipal.edtTerminalBalcao.Text)+' and dtope='+QuotedStr(FormatDateTime('dd.mm.yyyy',now)) ;
+        qryInsereDesconto.Open;
+        qryInsereDesconto.Transaction.CommitRetaining;
+        qryInsereDesconto.Close;
+
+        qrySelecionaDesconto.Close;
+
+        showmessage('DESCONTO CONCEDIDO COM SUCESSO!');
+
+      end;
+
+  end;
+
+
+end;
+
+procedure TfrmPrincipal.DescontoFuncionarios;
+function TrocaVirgPPto(Valor: string): String;
+   var i:integer;
+begin
+if valor=null then valor:='0';
+    if Valor <>'' then begin
+        for i := 0 to Length(Valor) do begin
+            if Valor[i]=',' then Valor[i]:='.';
+
+        end;
+     end;
+     Result := valor;
+end;
+
+ var valortotal : double;
+     qtdprodpromocao,i,qtdfinal:integer;
+ begin
+
+  qtdprodpromocao:=0;
+  lblDescontoValor.Caption := '0';
+
+  with qryTerminalBalcao do
+  begin
+
+    First;
+
+
+ if MessageDlg('Deseja confirmar desconto de 10% relativo a Campanha Marketing?',mtconfirmation,[mbYes,MbNo],0)=mryes then
+      begin
+
+        qrySelecionaDesconto.Close;
+        qrySelecionaDesconto.sql.Text := 'select * from fc32110 where cdfil='+trim(frmPrincipal.edtLoja.Text)+' and nrcpm='+trim(frmPrincipal.edtTerminalBalcao.Text)+' and dtope='+QuotedStr(FormatDateTime('dd.mm.yyyy',now))+' order by VRTOT DESC' ;
+        qrySelecionaDesconto.Open;
+
+        qrySelecionaDesconto.FetchAll;
+
+        qrySelecionaDesconto.First;
+
+        for i:=1 to qtdprodpromocao do
+         begin
+           if qrySelecionaDesconto.FieldValues['tpitm']='V' then
+            begin
+              qryInsereDesconto.Close;
+              qryInsereDesconto.SQL.Text := 'update fc32110 set pruniliq=(pruniliq-(pruniliq*0.10)),ptdsc=10 ,tpdsc='+quotedstr('7')+' ,vrcxa=(vrtot-(vrtot*0.10)), vrliq=(vrtot-(vrtot*0.1)), vrdsc=(vrtot*0.1), BCPIS=(vrtot-(vrtot*0.1)), VRPIS=(vrtot-(vrtot*0.1)),BCCOFINS=(vrtot-(vrtot*0.1)), '+
+              ' BCICM=(vrtot-(vrtot*0.1)),VRCOFINS=(vrtot-(vrtot*0.1)) where cdfil='+inttostr(qrySelecionaDesconto.FieldValues['cdfil'])+' and cdtml='+quotedstr(qrySelecionaDesconto.FieldValues['cdtml'])+' and dtope='+quotedstr(FormatDateTime('dd.mm.yyyy',qrySelecionaDesconto.FieldValues['dtope']))+' and operid='+inttostr(qrySelecionaDesconto.FieldValues['operid'])+' and nrcpm='+inttostr(qrySelecionaDesconto.FieldValues['nrcpm'])+' and itemid='+inttostr(qrySelecionaDesconto.FieldValues['itemid']);
+              qryInsereDesconto.Open;
+              qryInsereDesconto.Transaction.CommitRetaining;
+              qryInsereDesconto.Close;
+            end else
+              begin //se for receita
+                qryInsereDesconto.Close;
+                qryInsereDesconto.SQL.Text := 'update fc32110 set pruniliq=(pruniliq-(pruniliq*0.10)), vrcxa=(vrtot-(vrtot*0.10)), vrliq=(vrtot-(vrtot*0.1)), BCPIS=(vrtot-(vrtot*0.1)), VRPIS=(vrtot-(vrtot*0.1)),BCCOFINS=(vrtot-(vrtot*0.1)), '+
+                ' BCICM=(vrtot-(vrtot*0.2)),VRCOFINS=(vrtot-(vrtot*0.1)) where cdfil='+inttostr(qrySelecionaDesconto.FieldValues['cdfil'])+' and cdtml='+quotedstr(qrySelecionaDesconto.FieldValues['cdtml'])+' and dtope='+quotedstr(FormatDateTime('dd.mm.yyyy',qrySelecionaDesconto.FieldValues['dtope']))+' and operid='+inttostr(qrySelecionaDesconto.FieldValues['operid'])+' and nrcpm='+inttostr(qrySelecionaDesconto.FieldValues['nrcpm'])+' and itemid='+inttostr(qrySelecionaDesconto.FieldValues['itemid']);
+                qryInsereDesconto.Open;
+                qryInsereDesconto.Transaction.CommitRetaining;
+                qryInsereDesconto.Close;
+
+                qryInsereDesconto.Close;
+                qryInsereDesconto.SQL.Text := 'update fc32200 set ptdsc=10 ,tpdsc='+quotedstr('7')+' ,vrsdo=(vrtot-(vrtot*0.10)), vrliq=(vrtot-(vrtot*0.1)), vrdsc=(vrtot*0.1), vrcxa=(vrtot-(vrtot*0.1)), useridaut='+quotedstr('campanhamkt') +
+                ' where cdfil='+inttostr(qrySelecionaDesconto.FieldValues['cdfil'])+' and cdtml='+quotedstr(qrySelecionaDesconto.FieldValues['cdtml'])+' and dtope='+quotedstr(FormatDateTime('dd.mm.yyyy',qrySelecionaDesconto.FieldValues['dtope']))+' and operid='+inttostr(qrySelecionaDesconto.FieldValues['operid'])+' and nrcpm='+inttostr(qrySelecionaDesconto.FieldValues['nrcpm'])+' and itemid='+inttostr(qrySelecionaDesconto.FieldValues['itemid']);
+                qryInsereDesconto.Open;
+                qryInsereDesconto.Transaction.CommitRetaining;
+                qryInsereDesconto.Close;
+              end;
+
+
+
+            qrySelecionaDesconto.Next;
+            qtdfinal := qtdfinal+qrySelecionaDesconto.FieldValues['quant'];
+            if qrySelecionaDesconto.Eof then break;
+         end;
+
+        qrySelecionaDesconto.First;
+
+
+
+        qryInsereDesconto.Close;
+        qryInsereDesconto.SQL.Text := 'select sum(vrliq) as VALOR from fc32110 where  cdfil='+trim(frmPrincipal.edtLoja.Text)+' and nrcpm='+trim(frmPrincipal.edtTerminalBalcao.Text)+' and dtope='+QuotedStr(FormatDateTime('dd.mm.yyyy',now)) ;
+        qryInsereDesconto.Open;
+        valortotal := qryInsereDesconto.FieldValues['VALOR'];
+        qryInsereDesconto.Close;
+
+        qryInsereDesconto.Close;
+        qryInsereDesconto.SQL.Text := 'update fc32100 set useridaut='+quotedstr('campanhamkt')+', vrtot='+quotedstr(TrocaVirgPPto(FloatToStr(valortotal)))+', vrliq='+quotedstr(TrocaVirgPPto(FloatToStr(valortotal)))+',vrcxa='+quotedstr(TrocaVirgPPto(FloatToStr(valortotal)))+', vrarc='+quotedstr(TrocaVirgPPto(FloatToStr(valortotal)))+' where  cdfil='+trim(frmPrincipal.edtLoja.Text)+' and nrcpm='+trim(frmPrincipal.edtTerminalBalcao.Text)+' and dtope='+QuotedStr(FormatDateTime('dd.mm.yyyy',now)) ;
+        qryInsereDesconto.Open;
+        qryInsereDesconto.Transaction.CommitRetaining;
+        qryInsereDesconto.Close;
+
+
+        qrySelecionaDesconto.Close;
+
+        showmessage('DESCONTO CONCEDIDO COM SUCESSO!');
+
+      end;
+
+  end;
+
+
+end;
+
+
+procedure TfrmPrincipal.btInsereDescontoClick(Sender: TObject);
+begin
+ if not(qryTerminalBalcao.IsEmpty) then
+        begin
+          case rgtpDesc.ItemIndex of
+
+          0:begin
+             if lblDesconto.Caption<>'R$ 0,00' then  raise exception.create ('Venda já possui desconto');
+             frmCartaoDesconto.ShowModal;
+             end;
+
+          1:begin
+              if lblDescontovarejo.Caption<>'R$ 0,00' then  raise exception.create ('Venda já possui desconto');
+              DescontoPromocional;
+            end;
+
+          2:begin
+              if lblDescontovarejo.Caption<>'R$ 0,00' then  raise exception.create ('Venda já possui desconto');
+              DescontoPromocional3;
+            end;
+
+          3:begin
+              if lblDescontovarejo.Caption<>'R$ 0,00' then  raise exception.create ('Venda já possui desconto');
+              showmessage('Campanha Hidra Therapy encerrada') //DescontoHidraTherapy;
+            end;
+
+
+          4:begin
+
+              qryConsultaDescPrivilege.Close;
+              qryConsultaDescPrivilege.SQL.Text := 'select * from fc32100 where cdfil='+edtLoja.Text+' and nrcpm='+edtTerminalBalcao.Text+' and useridaut='+quotedstr('projetocrm');
+              qryConsultaDescPrivilege.Open;
+
+              if not(qryConsultaDescPrivilege.IsEmpty) then ShowMessage('Cupom já possui desconto CRM')
+                else
+              frmDescontoCRM.ShowModal;
+
+              qryConsultaDescPrivilege.Close;
+            end;
+
+          5:begin
+//              raise exception.Create('Módulo em Construção');
+              DescontoFuncionarios;
+            end;
+
+          end;
+
+          localizarbalcao(edtTerminalBalcao.Text);
+          edtTerminalBalcao.SetFocus;
+          edtTerminalBalcao.SelectAll;
+        end
+  else
+    showmessage('Informe um terminal balcão');
+end;
+
+procedure TfrmPrincipal.TimerAberturaTimer(Sender: TObject);
+begin
+  if (autenticado=false) and (frmSenha.Showing=false) then frmSenha.ShowModal;
+  if (autenticado=false) and (frmSenha.Showing=false) then FrmPrincipal.Close;
+end;
+
+procedure TfrmPrincipal.TimerHorarioTimer(Sender: TObject);
+//---------------------------------------------------------------------------------------//
+{# Função informa dia atual da semana em extenso e em português #}
+ function DiaSemana(Data: TDateTime): String;
+  const
+   Dias : Array[1..7] of String[13] = ('Domingo','Segunda-Feira','Terça-Feira','Quarta-Feira','Quinta-Feira','Sexta-Feira','Sábado');
+ begin
+   Result := Dias[DayOfWeek(Data)];
+ end;
+//---------------------------------------------------------------------------------------//
+begin
+  StatusBar1.Panels[0].Text:='  Hora : '+TimeToStr(Time);
+  if (StatusBar1.Panels[1].Text)<>(DiaSemana(Date)+'  '+DateToStr(Date)) then
+    StatusBar1.Panels[1].Text:=DiaSemana(Date)+'  '+DateToStr(Date);
+end;
+
+procedure TfrmPrincipal.DescontosConcedidos1Click(Sender: TObject);
+begin
+ frmRelatorioDesconto.ShowModal;
+end;
+
+procedure TfrmPrincipal.CodBarrasFuncionarios1Click(Sender: TObject);
+begin
+ frmCodBarrasMedicos.ShowModal;
+end;
+
+procedure TfrmPrincipal.Solicitao1Click(Sender: TObject);
+begin
+ frmSolicitacao.ShowModal;
+end;
+
+procedure TfrmPrincipal.SolicitaesAbertas1Click(Sender: TObject);
+begin
+ frmSolicitacaoesAbertas.ShowModal;
+end;
+
+procedure TfrmPrincipal.ConfigAlertas1Click(Sender: TObject);
+begin
+  frmAlertas.ShowModal;
+end;
+
+procedure TfrmPrincipal.FormShow(Sender: TObject);
+begin
+ edtTerminalBalcao.SetFocus;
+
+ //Limpar mensagem do fcerta quando o cartão tiver vencido
+
+  qryPrivilegeTEMP.Close;
+  qryPrivilegeTEMP.SQL.Text := 'select * from descclientes where usado='+quotedstr('0')+' and cancelado='+quotedstr('0')+' and dtvalfim<'+quotedstr(FormatDateTime('dd.mm.yyyy',now));
+  qryPrivilegeTEMP.Open;
+
+  if not(qryPrivilegeTEMP.IsEmpty) then
+   begin
+    while not qryPrivilegeTEMP.Eof do
+     begin
+
+
+        qryLimpaPrivilege.Close;
+        qryLimpaPrivilege.SQL.Text := 'select * from descclientes where cdcli='+inttostr(qryPrivilegeTEMP.FieldValues['cdcli'])+' and  usado='+quotedstr('0')+' and dtvalfim>='+quotedstr(FormatDateTime('dd.mm.yyyy',now));
+        qryLimpaPrivilege.Open;
+
+        if qryLimpaPrivilege.IsEmpty then
+         begin
+            qryFcertaTEMP.Close;
+            qryFcertaTEMP.SQL.Text := 'update fc07000 set clcli=null where cdcli='+inttostr(qryPrivilegeTEMP.FieldValues['cdcli']);
+            qryFcertaTEMP.Open;
+            qryFcertaTEMP.Transaction.CommitRetaining;
+            qryFcertaTEMP.Close;
+         end;
+
+
+        qryLimpaPrivilege.Close;
+        qryLimpaPrivilege.SQL.Text := 'update descclientes set cancelado='+quotedstr('1')+' where cdfil='+inttostr(qryPrivilegeTEMP.FieldValues['cdfil'])+' and cpfiscal='+inttostr(qryPrivilegeTEMP.FieldValues['cpfiscal']);
+        qryLimpaPrivilege.Open;
+        qryLimpaPrivilege.Transaction.CommitRetaining;
+        qryLimpaPrivilege.Close;
+
+
+
+        qryPrivilegeTEMP.Next;
+     end;
+   end;
+
+  qryPrivilegeTEMP.Close;
+
+end;
+
+procedure TfrmPrincipal.edtTerminalBalcaoChange(Sender: TObject);
+begin
+
+ cbParentesco.ItemIndex := 0;
+ cbParentesco.Enabled   := false;
+ cbParentesco.Color     := clScrollBar;
+ lblBalcao.Caption      := 'R$ 0,00';
+ lblDesconto.Caption    := 'R$ 0,00';
+ lblFinal.Caption       := 'R$ 0,00';
+ qryTerminalBalcao.Close;
+ nomecli:='';
+
+end;
+
+procedure TfrmPrincipal.ControledeCartes1Click(Sender: TObject);
+begin
+ frmRelatorioControle.ShowModal;
+end;
+
+procedure TfrmPrincipal.ImprimirCodBarras1Click(Sender: TObject);
+begin
+ frmImprimeCodBarras.ShowModal;
+end;
+
+end.

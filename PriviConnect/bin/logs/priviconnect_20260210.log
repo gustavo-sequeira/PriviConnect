@@ -1,0 +1,114 @@
+10/02/2026 15:33:13 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81998310610
+} 
+10/02/2026 15:37:38 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81998310610
+} 
+10/02/2026 15:38:57 [JSON] RESPONSE POST /descontos - BODY: {"erro":"Access violation at address 00E4A7B9 in module 'PriviConnect.exe'. Read of address 00000008 - "}
+10/02/2026 15:39:02 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81998310610
+} 
+10/02/2026 15:40:29 [JSON] RESPONSE POST /descontos - BODY: {"erro":"Access violation at address 00E4A7B9 in module 'PriviConnect.exe'. Read of address 00000008 - "}
+10/02/2026 15:41:23 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81998310610
+} 
+10/02/2026 15:45:00 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81998310610
+} 
+10/02/2026 15:48:09 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81998310610
+} 
+10/02/2026 15:48:15 [JSON] RESPONSE POST /descontos - BODY: {"erro":"Access violation at address 00E4A851 in module 'PriviConnect.exe'. Read of address 00000008 - "}
+10/02/2026 15:48:20 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81998310610
+} 
+10/02/2026 15:48:28 [JSON] RESPONSE POST /descontos - BODY: {"erro":"Access violation at address 00E4A851 in module 'PriviConnect.exe'. Read of address 00000008 - "}
+10/02/2026 15:48:33 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81998310610
+} 
+10/02/2026 15:53:43 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81998310610
+} 
+10/02/2026 15:54:06 [JSON] RESPONSE POST /descontos - BODY: {"erro":"Access violation at address 00E4A875 in module 'PriviConnect.exe'. Read of address 00000008 - "}
+10/02/2026 16:00:40 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81998310610
+} 
+10/02/2026 16:00:49 [JSON] RESPONSE POST /descontos - BODY: {"erro":"Access violation at address 00E4A875 in module 'PriviConnect.exe'. Read of address 00000008 - "}
+10/02/2026 16:01:34 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81998310610
+} 
+10/02/2026 16:05:07 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81998310610
+} 
+10/02/2026 16:06:47 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81998310610
+} 
+10/02/2026 16:07:34 [JSON] RESPONSE POST /descontos - BODY: {"erro":"Access violation at address 00E4A881 in module 'PriviConnect.exe'. Read of address 00000008 - "}
+10/02/2026 16:08:28 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81998310610
+} 
+10/02/2026 16:13:12 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81998310610
+} 
+10/02/2026 16:13:42 [JSON] RESPONSE POST /descontos - BODY: {"erro":"Access violation at address 00E4A889 in module 'PriviConnect.exe'. Read of address 00000008 - "}
+10/02/2026 16:19:18 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81991824931
+} 
+10/02/2026 16:19:35 [JSON] RESPONSE POST /descontos - BODY: {"erro":"Access violation at address 00E4A889 in module 'PriviConnect.exe'. Read of address 00000008 - "}
+10/02/2026 16:24:06 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81999167800
+} 
+10/02/2026 16:24:30 [JSON] RESPONSE POST /descontos - BODY: {"erro":"Access violation at address 00E4A889 in module 'PriviConnect.exe'. Read of address 00000008 - "}
+10/02/2026 16:24:35 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81999167800
+} 
+10/02/2026 16:26:40 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81997515233
+} 
+10/02/2026 16:30:14 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81997515233
+} 
+10/02/2026 16:34:49 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81997515233
+} 
+10/02/2026 16:35:07 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81997515233","info":"Não existe campanha ativa para esse cpf (0)"}
+10/02/2026 16:35:22 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81997515233
+} 
+10/02/2026 16:43:09 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81997515233
+} 
+10/02/2026 16:43:25 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81997515233","info":"Não existe campanha ativa para esse cpf (0)"}
+10/02/2026 16:43:42 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81997515233
+} 
+10/02/2026 16:44:54 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81997515233","info":"Não existe campanha ativa para esse cpf (0)"}
+10/02/2026 16:45:05 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81997515233
+} 
+10/02/2026 16:45:33 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81997515233","info":"Não existe campanha ativa para esse cpf (0)"}
+10/02/2026 16:46:27 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81997515233
+} 
+10/02/2026 16:50:48 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81997515233
+} 
+10/02/2026 16:51:42 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81997515233
+} 
+10/02/2026 16:51:48 [ERRO] EXCEPTION em POST /descontos: Access violation at address 04004012. Read of address 04004012
+10/02/2026 16:51:54 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81997515233
+} 
+10/02/2026 16:52:54 [ERRO] EXCEPTION em POST /descontos: Access violation at address 04004012. Read of address 04004012
+10/02/2026 17:07:40 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81997515233
+} 
+10/02/2026 17:09:42 [ERRO] EXCEPTION em POST /descontos: Access violation at address 04004012. Read of address 04004012
+10/02/2026 17:10:16 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81997515233
+} 
+10/02/2026 17:10:18 [ERRO] EXCEPTION em POST /descontos: Access violation at address 04004012. Read of address 04004012
+10/02/2026 17:11:35 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81997515233
+} 

@@ -1,0 +1,215 @@
+11/02/2026 08:39:53 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81997515233
+} 
+11/02/2026 08:49:47 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81997515233
+} 
+11/02/2026 09:22:36 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81997515233
+} 
+11/02/2026 09:22:45 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81997515233","info":"Não existe campanha ativa para esse cpf (0)"}
+11/02/2026 09:25:27 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81997515233
+} 
+11/02/2026 09:25:30 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81997515233","info":"Não existe campanha ativa para esse cpf (0)"}
+11/02/2026 09:29:33 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81992888494
+} 
+11/02/2026 09:29:46 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81992888494"}
+11/02/2026 09:30:54 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81992888494
+} 
+11/02/2026 09:30:59 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81992888494"}
+11/02/2026 09:31:03 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81992888494
+} 
+11/02/2026 09:32:14 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81992888494"}
+11/02/2026 09:32:19 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81992888494
+} 
+11/02/2026 09:32:46 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81992888494"}
+11/02/2026 09:32:49 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81992888494
+} 
+11/02/2026 09:38:29 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81992888494
+} 
+11/02/2026 09:38:47 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81992888494"}
+11/02/2026 09:41:10 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81992888494
+} 
+11/02/2026 09:41:19 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81992888494"}
+11/02/2026 09:41:24 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81992888494
+} 
+11/02/2026 09:46:54 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81992888494
+} 
+11/02/2026 10:30:29 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81992888494
+} 
+11/02/2026 10:34:12 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81992888494
+} 
+11/02/2026 10:35:32 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81992888494
+} 
+11/02/2026 10:35:49 [ERRO] EXCEPTION em POST /descontos: Access violation at address 04004012. Read of address 04004012
+11/02/2026 10:36:06 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": 81992888494
+} 
+11/02/2026 10:36:38 [ERRO] EXCEPTION em POST /descontos: Access violation at address 04004012. Read of address 04004012
+11/02/2026 10:41:47 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992888494"
+} 
+11/02/2026 10:42:06 [ERRO] EXCEPTION em POST /descontos: Access violation at address 004098FE in module 'PriviConnect.exe'. Read of address 00000003
+11/02/2026 10:42:33 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992888494"
+} 
+11/02/2026 10:42:39 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81992888494","campanhas":[[{"campanha":"ATLETAS","orcamento":"44777","tipo_item":"Fórmula","filial":"17","requisicao":"","descricao":"Requisição ainda não gerada","valor_total":"63,4","percentual_desconto":"40","valor_desconto":"25,36","valor_liquido":"38,04"},{"campanha":"ATLETAS","orcamento":"44778","tipo_item":"Fórmula","filial":"17","requisicao":"","descricao":"Requisição ainda não gerada","valor_total":"64,1","percentual_desconto":"40","valor_desconto":"25,64","valor_liquido":"38,46"}]]}
+11/02/2026 10:43:46 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "819928884594"
+} 
+11/02/2026 10:43:52 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"819928884594","info":"Não existe campanha ativa para esse cpf (0)"}
+11/02/2026 10:44:50 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992888494"
+} 
+11/02/2026 10:44:56 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81992888494","campanhas":[[{"campanha":"ATLETAS","orcamento":"44777","tipo_item":"Fórmula","filial":"17","requisicao":"","descricao":"Requisição ainda não gerada","valor_total":"63,4","percentual_desconto":"40","valor_desconto":"25,36","valor_liquido":"38,04"},{"campanha":"ATLETAS","orcamento":"44778","tipo_item":"Fórmula","filial":"17","requisicao":"","descricao":"Requisição ainda não gerada","valor_total":"64,1","percentual_desconto":"40","valor_desconto":"25,64","valor_liquido":"38,46"}]]}
+11/02/2026 10:47:17 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992888494"
+} 
+11/02/2026 10:47:24 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81992888494","campanhas":[[{"campanha":"ATLETAS","orcamento":"44777","tipo_item":"Fórmula","filial":"17","requisicao":"","descricao":"Requisição ainda não gerada","valor_total":"63,4","percentual_desconto":"40","valor_desconto":"25,36","valor_liquido":"38,04"},{"campanha":"ATLETAS","orcamento":"44778","tipo_item":"Fórmula","filial":"17","requisicao":"","descricao":"Requisição ainda não gerada","valor_total":"64,1","percentual_desconto":"40","valor_desconto":"25,64","valor_liquido":"38,46"}]]}
+11/02/2026 10:48:10 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992888494"
+} 
+11/02/2026 10:48:24 [ERRO] EXCEPTION em POST /descontos: Access violation at address 04004012. Read of address 04004012
+11/02/2026 11:05:43 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992888494"
+} 
+11/02/2026 11:05:43 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81992888494","campanhas":[{"campanha":"ATLETAS","orcamento":"44777","tipo_item":"Fórmula","filial":"17","requisicao":"","descricao":"Requisição ainda não gerada","valor_total":"63,4","percentual_desconto":"40","valor_desconto":"25,36","valor_liquido":"38,04"},{"campanha":"ATLETAS","orcamento":"44778","tipo_item":"Fórmula","filial":"17","requisicao":"","descricao":"Requisição ainda não gerada","valor_total":"64,1","percentual_desconto":"40","valor_desconto":"25,64","valor_liquido":"38,46"}]}
+11/02/2026 11:31:56 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992888494"
+} 
+11/02/2026 11:31:57 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81992888494","campanhas":[{"campanha":"ATLETAS","orcamento":"44777","tipo_item":"Fórmula","filial":"17","requisicao":"","descricao":"Requisição ainda não gerada","valor_total":"63,4","percentual_desconto":"40","valor_desconto":"25,36","valor_liquido":"38,04"},{"campanha":"ATLETAS","orcamento":"44778","tipo_item":"Fórmula","filial":"17","requisicao":"","descricao":"Requisição ainda não gerada","valor_total":"64,1","percentual_desconto":"40","valor_desconto":"25,64","valor_liquido":"38,46"}]}
+11/02/2026 14:34:04 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929"
+} 
+11/02/2026 14:34:05 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81992723929","campanhas":[{"campanha":"BUNKER","orcamento":"830284","tipo_item":"Fórmula","filial":"137","requisicao":"","descricao":"Requisição ainda não gerada","valor_total":"106,3","percentual_desconto":"20","valor_desconto":"21,26","valor_liquido":"85,04"}]}
+11/02/2026 14:36:06 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 14:36:07 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81992723929","campanhas":[{"campanha":"BUNKER","orcamento":"830284","tipo_item":"Fórmula","filial":"137","requisicao":"","descricao":"Requisição ainda não gerada","valor_total":"106,3","percentual_desconto":"20","valor_desconto":"21,26","valor_liquido":"85,04"}]}
+11/02/2026 14:36:35 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 14:39:11 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 14:39:20 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81992723929","campanhas":[{"campanha":"BUNKER","orcamento":"830284","tipo_item":"Fórmula","filial":"137","requisicao":"","descricao":"Requisição ainda não gerada","valor_total":"106,3","percentual_desconto":"20","valor_desconto":"21,26","valor_liquido":"85,04"}]}
+11/02/2026 14:39:46 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 14:44:02 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 14:47:29 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 14:47:34 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81992723929","campanhas":[{"campanha":"BUNKER","orcamento":"830284","tipo_item":"Fórmula","filial":"137","requisicao":"","descricao":"Requisição ainda não gerada","valor_total":"106,3","percentual_desconto":"20","valor_desconto":"21,26","valor_liquido":"85,04"}]}
+11/02/2026 14:47:46 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 14:47:46 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81992723929","campanhas":[{"campanha":"BUNKER","orcamento":"830284","tipo_item":"Fórmula","filial":"137","requisicao":"","descricao":"Requisição ainda não gerada","valor_total":"106,3","percentual_desconto":"20","valor_desconto":"21,26","valor_liquido":"85,04"}]}
+11/02/2026 14:47:48 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 14:47:48 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81992723929","campanhas":[{"campanha":"BUNKER","orcamento":"830284","tipo_item":"Fórmula","filial":"137","requisicao":"","descricao":"Requisição ainda não gerada","valor_total":"106,3","percentual_desconto":"20","valor_desconto":"21,26","valor_liquido":"85,04"}]}
+11/02/2026 14:47:55 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 15:01:38 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 15:04:47 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 15:05:31 [JSON] RESPONSE POST /descontos - BODY: {"erro":"Field 'quant' not found"}
+11/02/2026 15:07:24 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 15:22:20 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 15:23:03 [JSON] RESPONSE POST /descontos - BODY: {"erro":"Field 'cdfil' not found"}
+11/02/2026 15:33:21 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 15:33:45 [JSON] RESPONSE POST /descontos - BODY: {"erro":"Access violation at address 00D4C304 in module 'PriviConnect.exe'. Read of address 00000000"}
+11/02/2026 15:33:53 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 15:34:07 [JSON] RESPONSE POST /descontos - BODY: {"erro":"Access violation at address 00D4C304 in module 'PriviConnect.exe'. Read of address 00000000"}
+11/02/2026 15:34:36 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 15:53:17 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 16:01:47 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 16:01:50 [JSON] RESPONSE POST /descontos - BODY: {"erro":"Field 'tpitm' not found"}
+11/02/2026 16:05:43 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 16:06:39 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 16:08:26 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 16:08:45 [JSON] RESPONSE POST /descontos - BODY: {"erro":"Access violation at address 00D4C304 in module 'PriviConnect.exe'. Read of address 00000000"}
+11/02/2026 16:09:46 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 16:39:59 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 16:47:45 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 16:48:26 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81992723929","campanhas":[{"campanha":"BUNKER","orcamento":"830284","tipo_item":"Fórmula","filial":"137","requisicao":"","descricao":"Requisição ainda não gerada","valor_total":"106,3","percentual_desconto":"20","valor_desconto":"21,26","valor_liquido":"85,04"},{"campanha":"Progressivo Performance","tipo_item":"Varejo","produto":"15447","nome_produto":"POWER TRAINING 7G 24 SACHES ABACAXI","valor_total":"129,9","percentual_desconto":"5","valor_desconto":"6,495","valor_liquido":"129,9"}]}
+11/02/2026 17:31:00 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[154457]
+} 
+11/02/2026 17:31:01 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81992723929","campanhas":[{"campanha":"BUNKER","orcamento":"830284","tipo_item":"Fórmula","filial":"137","requisicao":"","descricao":"Requisição ainda não gerada","valor_total":"106,3","percentual_desconto":"20","valor_desconto":"21,26","valor_liquido":"85,04"}]}
+11/02/2026 17:35:53 [JSON] REQUEST POST /descontos - BODY: {
+  "telefone": "81992723929",
+  "produtos":[15447]
+} 
+11/02/2026 17:35:56 [JSON] RESPONSE POST /descontos - BODY: {"telefone":"81992723929","campanhas":[{"campanha":"BUNKER","orcamento":"830284","tipo_item":"Fórmula","filial":"137","requisicao":"","descricao":"Requisição ainda não gerada","valor_total":"106,3","percentual_desconto":"20","valor_desconto":"21,26","valor_liquido":"85,04"},{"campanha":"Progressivo Performance","tipo_item":"Varejo","produto":"15447","nome_produto":"POWER TRAINING 7G 24 SACHES ABACAXI","valor_total":"129,9","percentual_desconto":"5","valor_desconto":"6,495","valor_liquido":"129,9"}]}

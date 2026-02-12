@@ -3,4 +3,5 @@ __recovery
 *.exe
 *.dcu
 *.res
+*.log
 *.~*

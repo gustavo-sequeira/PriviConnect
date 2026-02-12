@@ -32,7 +32,10 @@ function RetornarSelectFC03000Produtos(AProdutos: TList<Integer>; APercentual: D
 function RetornarSelectFC15000OrcamentosCampanhas(ACpf: Int64): string;
 
 // tabela: campanhas - descontos
-function RetornarSelectDescontoCampanhas(ATelefone, ACpf: Int64): string;
+function RetornarSelectDescontoCampanhas(ATelefone: Int64): string; overload;
+function RetornarSelectDescontoCampanhas(ATelefone, ACpf: Int64): string; overload;
+
+
 
 // tabela: descfranquias - quantidade e valor
 function RetornarSelectDescontoFranquiaQuantidadeValor(ACpf: Integer): string;
@@ -113,16 +116,11 @@ begin
   Result := vSQL;
 end;
 
-function RetornarSelectDescontoCampanhas(ATelefone, ACpf: Int64): string;
+function RetornarSelectDescontoCampanhas(ATelefone: Int64): string;
 var
   vSQL: string;
-  vCondicional: string;
 begin
-  if ATelefone > 0 then
-    vCondicional := '	      and (cc.ddd||cc.celular = '+QuotedStr(IntToStr(ATelefone))+')'
-  else
-    vCondicional := '	      and (cc.cpfcli = '+QuotedStr(IntToStr(ACpf))+')';
-
+  // Novo cenário: sempre por telefone
   vSQL :=
     '	     select cc.cpfcli, ' +
     '	            cc.ddd, ' +
@@ -160,9 +158,58 @@ begin
     '	      where 1 = 1 ' +
     '	        and (coalesce(cc.dtvalidade, current_date) >= current_date) ' +
     '	        and (coalesce(c.dtvalidade, current_date) >= current_date) ' +
-    vCondicional;
+    '	        and (cc.ddd||cc.celular = ' + QuotedStr(IntToStr(ATelefone)) + ')';
 
   Result := vSQL;
+end;
+
+function RetornarSelectDescontoCampanhas(ATelefone, ACpf: Int64): string;
+begin
+  // Mantém compatibilidade: se vier telefone usa telefone, senão cai no CPF (legado)
+  if ATelefone > 0 then
+    Result := RetornarSelectDescontoCampanhas(ATelefone)
+  else
+  begin
+    // fallback legado por CPF (se ainda existir alguma chamada antiga)
+    Result :=
+      '	     select cc.cpfcli, ' +
+      '	            cc.ddd, ' +
+      '	            cc.celular, ' +
+      '	            cast(cast(nomecli as varchar(120) character set win1252) as varchar(120)) as nomecli, ' +
+      '		          c.idcamp, ' +
+      '	            c.nomecampanha, ' +
+      '	            c.verificasaldo, ' +
+      '	            c.saldo, ' +
+      '	            c.dtvalidade, ' +
+      '	            upper(c.tpdesc) as tpdesc, ' +
+      '	            case upper(c.tpdesc) ' +
+      '	       	      when ''P'' then ''Percentual'' ' +
+      '	       	      else ''Valor'' ' +
+      '	            end as TipoDesconto, ' +
+      '		       	  case upper(c.tpdesc) ' +
+      '		 	      	  when ''P'' then 0 ' +
+      '			      	  else round(percvar,2) ' +
+      '		       	  end as ValorVarejo, ' +
+      '		       	  case upper(c.tpdesc) ' +
+      '		 	      	  when ''P'' then 0 ' +
+      '			      	  else round(percfor, 2) ' +
+      '		       	  end as ValorFormula, ' +
+      '		      	  case upper(c.tpdesc) ' +
+      '	       	  	 	when ''V'' then 0 ' +
+      '		      	  	else round(percvar) ' +
+      '		       	  end as PercentualVarejo, ' +
+      '		       	  case upper(c.tpdesc) ' +
+      '		 	      	  when ''V'' then 0 ' +
+      '			      	  else round(percfor) ' +
+      '	          	end as PercentualFormula ' +
+      '	       from campanhasclientes cc ' +
+      '  inner join campanhas c ' +
+      '          on c.idcamp = cc.idcamp ' +
+      '	      where 1 = 1 ' +
+      '	        and (coalesce(cc.dtvalidade, current_date) >= current_date) ' +
+      '	        and (coalesce(c.dtvalidade, current_date) >= current_date) ' +
+      '	        and (cc.cpfcli = ' + QuotedStr(IntToStr(ACpf)) + ')';
+  end;
 end;
 
 function RetornarSelectDescontoFranquiaQuantidadeValor(ACpf: Integer): string;

@@ -32,7 +32,8 @@ uses
   Registry,
   Desconto.Constantes.CampanhasMap in '..\PriviCore\src\Desconto.Constantes.CampanhasMap.pas',
   uLogger in 'src\class\uLogger.pas',
-  uMiddlewareLogJson in 'src\class\uMiddlewareLogJson.pas';
+  uMiddlewareLogJson in 'src\class\uMiddlewareLogJson.pas',
+  Desconto.ResponseModel in 'src\model\Desconto.ResponseModel.pas';
 
 function GetPorta: Integer;
 var
@@ -90,7 +91,7 @@ end;
 
 function GetVersao: string;
 begin
-  result := '1.0.1';
+  result := '1.0.2';
 end;
 
 procedure SwaggerConfig;
@@ -102,54 +103,27 @@ begin
     .AddProduces(gbAppJSON)
     .Info
       .Title('PriviConnect - API de Descontos')
-      .Description('Consulta de campanhas e descontos por CPF e produtos, com validação de campanhas ativas e aplicáveis.')
-      .Version('v. ' + GetVersao)
+      .Description('Consulta descontos por telefone (string com DDD) e produtos opcionais. Retorno pode conter Varejo e/ou Fórmula.')
+      .Version('1.0.0')
     .&End
-
-    // POST /descontos
-
     .Path('/descontos')
       .Tag('Descontos')
-      .POST('Calcular descontos por CPF, produtos e/ou campanhas')
-        .AddParamBody(
-          'body',
-          'CPF obrigatório, lista opcional de produtos e campanha opcional. ' +
-          'O campo "campanha" deve receber um dos IDs retornados pelo endpoint GET /campanhas ' +
-          '(ex.: CAMPANHA_DESCONTO_LOJA, CAMPANHA_PRIVILEGE).'
-        )
+      .POST('Consulta descontos (Varejo e/ou Fórmula)')
+        .AddParamBody('body', 'Telefone obrigatório e lista opcional de produtos')
           .Required(True)
           .Schema(TDescontoRequest)
         .&End
-        .AddResponse(200, 'Consulta realizada com sucesso (descontos calculados).').&End
-        .AddResponse(400, 'Requisição inválida ou campanha inválida/inativa/não aplicável.').&End
-        .AddResponse(500, 'Erro interno ao processar o cálculo de descontos.').&End
-      .&End
-    .&End
-
-    // GET /campanhas
-    .Path('/campanhas')
-      .Tag('Campanhas')
-      .GET('Listar campanhas ativas e aplicáveis')
-        .AddParamQuery(
-          'produtos',
-          'Lista de códigos de produto separados por vírgula (ex.: 123,456). ' +
-          'Se não informado, retorna campanhas ativas de forma geral.'
-        )
-          .Required(False)
+        .AddResponse(200, 'OK - Retorna campanhas Varejo e/ou Fórmula')
+          .Schema(TDescontosResponse)
         .&End
-        .AddResponse(
-          200,
-          'Retorna campanhas ativas e aplicáveis. Cada item possui:' + sLineBreak +
-          '- id: identificador lógico da campanha (nome da constante)' + sLineBreak +
-          '- descricao: texto descritivo exibido ao usuário'
-        ).&End
-        .AddResponse(400, 'Parâmetros inválidos na consulta de campanhas.').&End
-        .AddResponse(500, 'Erro interno ao consultar campanhas.').&End
+        .AddResponse(400, 'Requisição inválida').&End
+        .AddResponse(404, 'Sem campanhas aplicáveis').&End
+        .AddResponse(500, 'Erro interno').&End
       .&End
     .&End
-
-    .AddModel(TProduto)
-    .AddModel(TDescontoRequest);
+    .AddModel(TDescontoRequest)
+    .AddModel(TCampanhaRetornoItem)
+    .AddModel(TDescontosResponse);
 end;
 
 

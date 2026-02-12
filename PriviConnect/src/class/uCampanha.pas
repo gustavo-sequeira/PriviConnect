@@ -29,6 +29,8 @@ type
 
     PercentualVarejo: Double;
     PercentualFormula: Double;
+
+    Orcamento: Integer;
   end;
 
   ICampanha = interface

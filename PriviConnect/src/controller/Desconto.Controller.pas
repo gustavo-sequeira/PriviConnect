@@ -3,217 +3,115 @@ unit Desconto.Controller;
 interface
 
 uses
-  Horse,
-  System.JSON,
-  System.SysUtils,
-  System.StrUtils,           // SameText / IfThen
-  Desconto.Model,
-  FireDAC.Comp.Client,
-  DataSet.Serialize;
+  Horse;
 
 procedure Registry;
 
 implementation
 
 uses
-  Data.DB,
-  System.Generics.Collections,
-  uCampanha,
-  Desconto.Constantes.CampanhasMap,
-  Desconto.RequestModel;
+  System.SysUtils,
+  System.StrUtils,
+  System.JSON,
+  Desconto.Model;
 
-{ --- Helpers de resposta --------------------------------------------------- }
-
-procedure SendError(const Res: THorseResponse; const AMsg: string; AStatus: Integer = 400);
-begin
-  Res.Send(
-    TJSONObject.Create.AddPair('erro', AMsg)
-  ).Status(AStatus);
-end;
-
-procedure SendInfo(const Res: THorseResponse; const AMsg: string; AStatus: Integer = 404);
-begin
-  Res.Send(
-    TJSONObject.Create.AddPair('info', AMsg)
-  ).Status(AStatus);
-end;
-
-{ --- Helpers de parsing ---------------------------------------------------- }
-
-/// <summary>
-/// Lê o body como JSON e valida se veio algo.
-/// </summary>
-function GetBodyJSON(const Req: THorseRequest; const Res: THorseResponse;
-  out ABody: TJSONObject): Boolean;
-begin
-  ABody := Req.Body<TJSONObject>;
-  Result := Assigned(ABody);
-  if not Result then
-    SendError(Res, 'JSON de entrada inválido.', 400);
-end;
-
-/// <summary>
-/// Lê CPF / telefone. Pelo menos um deles precisa vir.
-/// Preenche também o JSON de retorno.
-/// </summary>
-procedure ParseCliente(const ABody: TJSONObject; const ADesconto: TDesconto;
-  const ARetorno: TJSONObject);
+function GetTelefoneAsString(const AObj: TJSONObject): string;
 var
-  vTelefoneValue: TJSONValue;
+  vVal: TJSONValue;
 begin
-  ADesconto.TelefoneCliente := 0;
+  Result := '';
+  if Assigned(AObj) and AObj.TryGetValue('telefone', vVal) then
+    Result := vVal.Value;
 
-  if ABody.TryGetValue('telefone', vTelefoneValue) then
-  begin
-    ADesconto.TelefoneCliente := vTelefoneValue.AsType<Int64>;
-    ARetorno.AddPair('telefone', IntToStr(ADesconto.TelefoneCliente));
-  end;
-
-  if (ADesconto.TelefoneCliente = 0) then
-    raise Exception.Create('É obrigatório informar Telefone.');
+  Result := Trim(Result);
+  Result := StringReplace(Result, '"', '', [rfReplaceAll]);
 end;
 
-/// <summary>
-/// Lê a lista de produtos do JSON e joga em ADesconto.CodigosProdutos.
-/// </summary>
-procedure ParseProdutos(const ABody: TJSONObject; const ADesconto: TDesconto);
-var
-  vJsonCodigos: TJSONArray;
-  vIndice: Integer;
+procedure SendError(const Res: THorseResponse; const AMsg: string; AStatus: Integer);
 begin
-  ADesconto.CodigosProdutos.Clear;
-
-  if ABody.TryGetValue('produtos', vJsonCodigos) then
-  begin
-    vJsonCodigos := ABody.GetValue<TJSONArray>('produtos');
-
-    for vIndice := 0 to vJsonCodigos.Count - 1 do
-      ADesconto.CodigosProdutos.Add(
-        StrToIntDef(vJsonCodigos.Items[vIndice].Value, 0)
-      );
-  end;
+  Res.Send(TJSONObject.Create.AddPair('erro', AMsg)).Status(AStatus);
 end;
 
-/// <summary>
-/// Valida a campanha informada (se houver) e se ela é aplicável
-/// para os produtos / CPF informados.
-/// </summary>
-procedure ParseCampanha(const ABody: TJSONObject; const ADesconto: TDesconto);
-var
-  vCampanhaId: string;
-  vMapa: TDictionary<string, string>;
-  vGerenciador: TGerenciadorCampanhas;
-  vCampanhasValidas: TList<ICampanha>;
-  vCampanha: ICampanha;
-  vCampanhaAplicavel: Boolean;
+procedure SendInfo(const Res: THorseResponse; const AMsg: string; AStatus: Integer);
 begin
-  // campanha é opcional
-  if not ABody.TryGetValue<string>('campanha', vCampanhaId) then
-    Exit;
-
-  // 1) valida se existe no mapa da API
-  vMapa := MapaCampanhas;
-  try
-    if not vMapa.ContainsKey(vCampanhaId) then
-      raise Exception.CreateFmt(
-        'A campanha "%s" não é conhecida pela API do PriviConnect.',
-        [vCampanhaId]
-      );
-
-    ADesconto.Campanha := vCampanhaId;
-  finally
-    vMapa.Free;
-  end;
-
-  // 2) valida se a campanha está ativa e aplicável para os produtos enviados
-  vGerenciador := TGerenciadorCampanhas.Create;
-  try
-    vCampanhasValidas := vGerenciador.ObterCampanhasAplicaveis(ADesconto.CodigosProdutos);
-    vCampanhaAplicavel := False;
-
-    for vCampanha in vCampanhasValidas do
-    begin
-      if not vCampanha.Valida then
-        Continue;
-
-      // compara pelo NOME da campanha (usando o mapa para achar a descrição)
-      if SameText(vCampanha.Nome, MapaCampanhas[vCampanhaId]) then
-      begin
-        vCampanhaAplicavel := True;
-        Break;
-      end;
-    end;
-
-    if not vCampanhaAplicavel then
-      raise Exception.CreateFmt(
-        'A campanha "%s" não está ativa ou não é aplicável para os produtos/CPF informados.',
-        [ADesconto.Campanha]
-      );
-  finally
-    vGerenciador.Free;
-  end;
+  Res.Send(TJSONObject.Create.AddPair('info', AMsg)).Status(AStatus);
 end;
-
-{ --- Endpoint principal ---------------------------------------------------- }
 
 procedure ListarDescontosOrcamentosProdutos(Req: THorseRequest; Res: THorseResponse; Next: TProc);
 var
   vBody: TJSONObject;
   vRetorno: TJSONObject;
-  vCampanhasJson: TJSONArray;
+  vCampanhas: TJSONArray;
   vDesconto: TDesconto;
   vErro: string;
+
+  vTelefone: string;
+  vArrProdutos: TJSONArray;
+  i: Integer;
 begin
-  vDesconto      := TDesconto.Create;
-  vRetorno       := TJSONObject.Create;
-  vCampanhasJson := nil;
-  vBody          := nil;
-  vErro          := '';
+  vBody := nil;
+  vRetorno := TJSONObject.Create;
+  vCampanhas := nil;
+  vDesconto := TDesconto.Create;
+  vErro := '';
 
   try
-    try
-      // 1) Body JSON
-      if not GetBodyJSON(Req, Res, vBody) then
-        Exit;
-
-      // 2) Cliente (CPF / telefone)
-      ParseCliente(vBody, vDesconto, vRetorno);
-
-      // 3) Produtos
-      ParseProdutos(vBody, vDesconto);
-
-      // 4) Campanha (opcional, mas se vier precisa ser válida)
-      ParseCampanha(vBody, vDesconto);
-
-      // 5) Chama o core para buscar os descontos
-      vCampanhasJson := vDesconto.ListarDescontosPorProdutos(vErro);
-
-      if Assigned(vCampanhasJson) and (vCampanhasJson.Count > 0) then
-      begin
-        // transfere a posse do array para o JSON de retorno
-        vRetorno.AddPair('campanhas', vCampanhasJson);
-        vCampanhasJson := nil;
-
-        Res.Send<TJSONObject>(vRetorno).Status(200);
-        vRetorno := nil;
-      end
-      else
-      begin
-        SendInfo(Res, Format('Não existe campanha ativa para esse CPF (%s).', [IntToStr(vDesconto.CpfCliente)]), 404);
-      end;
-
-    except
-      on E: Exception do
-        // se vErro vier preenchido do Model, inclui na mensagem
-        SendError(Res, E.Message + IfThen(vErro <> '', ' - ' + vErro, ''), 500);
+  try
+    vBody := Req.Body<TJSONObject>;
+    if not Assigned(vBody) then
+    begin
+      SendError(Res, 'JSON inválido.', 400);
+      Exit;
     end;
+
+    // telefone obrigatório
+    vTelefone := GetTelefoneAsString(vBody);
+    if vTelefone = '' then
+    begin
+      SendError(Res, 'Informe "telefone" (string com DDD).', 400);
+      Exit;
+    end;
+
+    vDesconto.TelefoneClienteStr := vTelefone;
+    vRetorno.AddPair('telefone', vTelefone);
+
+    // produtos opcionais
+    vDesconto.CodigosProdutos.Clear;
+    vArrProdutos := nil;
+
+    if vBody.TryGetValue<TJSONArray>('produtos', vArrProdutos) and Assigned(vArrProdutos) then
+    begin
+      for i := 0 to vArrProdutos.Count - 1 do
+        vDesconto.CodigosProdutos.Add(StrToIntDef(vArrProdutos.Items[i].Value, 0));
+    end;
+
+    // chama model (retorna array flat)
+    vCampanhas := vDesconto.ListarDescontosPorProdutos(vErro);
+
+    if Assigned(vCampanhas) and (vCampanhas.Count > 0) then
+    begin
+      // ? flat (sem array dentro de array)
+      vRetorno.AddPair('campanhas', vCampanhas);
+      vCampanhas := nil;
+
+      Res.Send<TJSONObject>(vRetorno).Status(200);
+      vRetorno := nil;
+    end
+    else
+      SendInfo(Res, 'Nenhuma campanha aplicável para o telefone/produtos informados.', 404);
+
+  except
+    on E: Exception do
+      SendError(Res, E.Message + IfThen(vErro <> '', ' - ' + vErro, ''), 500);
+      end
 
   finally
     vDesconto.Free;
     vRetorno.Free;
-    vCampanhasJson.Free;
+    vCampanhas.Free;
   end;
 end;
+
 
 procedure Registry;
 begin

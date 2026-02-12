@@ -2,54 +2,19 @@ unit Desconto.RequestModel;
 
 interface
 
-uses
-  System.Generics.Collections,
-  GBSwagger.Model.Attributes;
-
 type
-  TProduto = class
-  private
-    FCodigo: Integer;
-  public
-    [SwagRequired]
-    property codigo: Integer read FCodigo write FCodigo;
-
-  end;
-
+  // Request do endpoint /descontos
+  // Somente telefone é obrigatório.
   TDescontoRequest = class
   private
-    FCpf: integer;
-    FTelefone: integer;
-    FProdutos: TObjectList<TProduto>;
-    FCampanha: string;
-  public
-    [SwagNumber(11)]
-    property cpf: integer read FCpf write FCpf;
-    [SwagString(100)]
-    property campanha: string read FCampanha write FCampanha;
-    [SwagNumber(15)]
-    property telefone: integer read FTelefone write FTelefone;
-    property produtos: TObjectList<TProduto> read FProdutos write FProdutos;
-
-    constructor Create;
-    destructor Destroy; override;
+    FTelefone: string;
+    FProdutos: TArray<Integer>;
+  published
+    property telefone: string read FTelefone write FTelefone;           // obrigatório
+    property produtos: TArray<Integer> read FProdutos write FProdutos; // opcional
   end;
 
 implementation
-
-{ TDesconto }
-
-constructor TDescontoRequest.Create;
-begin
-  inherited;
-  FProdutos := TObjectList<TProduto>.Create;
-end;
-
-destructor TDescontoRequest.Destroy;
-begin
-  FProdutos.Free;
-  inherited;
-end;
 
 end.
 

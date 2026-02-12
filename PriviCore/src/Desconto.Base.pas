@@ -17,7 +17,7 @@ uses
 
 procedure Desconto_Loja(AInfo: TInfoDesconto; AProdutos: TList<Integer>; ATipo: TTipoChamada = tcDesktop; ALista: TJSONArray = nil);
 procedure Desconto_Cartao(out AUsouDesconto: Double; AInfo: TInfoDesconto; AProdutos: TList<Integer>; AParams: TParametros = []; ATipo: TTipoChamada = tcDesktop; ALista: TJSONArray = nil);
-procedure Desconto_Campanha(AInfo: TInfoDesconto; AProdutos: TList<Integer>; ATipo: TTipoChamada = tcDesktop; ALista: TJSONArray = nil; ACampanhaOrcamento: TList<TRecCampanhaClienteOrcamentos> = nil);
+procedure Desconto_Campanha(AInfo: TInfoDesconto; AProdutos: TList<Integer>; out ACampanhaOrcamento: TList<TRecCampanhaClienteOrcamentos>; ATipo: TTipoChamada = tcDesktop; ALista: TJSONArray = nil);
 procedure Desconto_Franquia(AInfo: TInfoDesconto; AProdutos: TList<Integer>; ATipo: TTipoChamada = tcDesktop; ALista: TJSONArray = nil);
 procedure Desconto_Progressivo(out AValorTotal: Double; AInfo: TInfoDesconto; AProdutos: TList<Integer>; ATipo: TTipoChamada = tcDesktop; ALista: TJSONArray = nil);
 procedure Desconto_Progressivo_Colageno(out AValorTotal: Double; AInfo: TInfoDesconto; AProdutos: TList<Integer>; ATipo: TTipoChamada = tcDesktop; ALista: TJSONArray = nil);
@@ -474,70 +474,96 @@ begin
   end;
 end;
 
-procedure Desconto_Campanha(AInfo: TInfoDesconto; AProdutos: TList<Integer>; ATipo: TTipoChamada = tcDesktop; ALista: TJSONArray = nil; ACampanhaOrcamento: TList<TRecCampanhaClienteOrcamentos> = nil);
+
+
+procedure Desconto_Campanha(
+  AInfo: TInfoDesconto;
+  AProdutos: TList<Integer>;
+  out ACampanhaOrcamento: TList<TRecCampanhaClienteOrcamentos>;
+  ATipo: TTipoChamada = tcDesktop;
+  ALista: TJSONArray = nil
+);
 var
-  vQueryFC, vQueryPRV: TFDQuery;
+  vQueryPRV: TFDQuery;
+  vQueryFC: TFDQuery;
   vQtdCampanhas: Integer;
+
+  vCpfInterno: Int64;
+  vTmp: TRecCampanhaClienteOrcamentos;
 begin
-  vQueryFC := TFDQuery.Create(nil);
+  // Sempre cria a lista de saída
+  ACampanhaOrcamento := TList<TRecCampanhaClienteOrcamentos>.Create;
+
+  // Telefone é obrigatório no novo cenário (mas aqui só garante)
+  if (AInfo.Telefone <= 0) then
+    Exit;
+
   vQueryPRV := TFDQuery.Create(nil);
-
-  vQueryFC.Connection := AInfo.DatabaseFDConnectionFormulaCerta;
-  vQueryPRV.Connection := AInfo.DatabaseFDConnectionPrivilege;
-
+  vQueryFC  := TFDQuery.Create(nil);
   try
-    if ATipo = tcWebService then
+    vQueryPRV.Connection := AInfo.DatabaseFDConnectionPrivilege;
+    vQueryFC.Connection  := AInfo.DatabaseFDConnectionFormulaCerta;
+
+    // 1) Campanhas do cliente no Privilege via TELEFONE
+    vQueryPRV.Close;
+    vQueryPRV.SQL.Clear;
+    vQueryPRV.SQL.Add(RetornarSelectDescontoCampanhas(AInfo.Telefone));
+    vQueryPRV.Open;
+
+    ACampanhaOrcamento.AddRange(TCampanhaClienteOrcamentos.GetList(vQueryPRV));
+
+    if ACampanhaOrcamento.Count = 0 then
+      Exit;
+
+    // 2) CPF interno vindo do banco (NÃO expõe isso no response)
+    // (mantém compatibilidade com rotinas da Fórmula Certa que ainda usam CPF)
+    vCpfInterno := ACampanhaOrcamento[0].Cpf;
+    AInfo.Cpf := vCpfInterno;
+
+    // 3) Para cada campanha, buscar os orçamentos na FC pelo CPF interno
+    for vQtdCampanhas := 0 to ACampanhaOrcamento.Count - 1 do
     begin
-      try
-        vQueryPRV.Close;
-        vQueryPRV.SQL.Clear;
-        vQueryPRV.SQL.Add(RetornarSelectDescontoCampanhas(AInfo.Telefone, AInfo.Cpf));
-        vQueryPRV.Open;
-        ACampanhaOrcamento := TCampanhaClienteOrcamentos.GetList(vQueryPRV);
-        if ACampanhaOrcamento.Count > 0 then
+      vQueryFC.Close;
+      vQueryFC.SQL.Clear;
+
+      // aqui você já tinha essa função no seu projeto (print mostrou esse padrão)
+      vQueryFC.SQL.Add(
+        RetornarSelectFC15000OrcamentosCampanhas(ACampanhaOrcamento[vQtdCampanhas].Cpf)
+      );
+
+      vQueryFC.Open;
+
+      if vQueryFC.IsEmpty then
+        Continue;
+
+      vQueryFC.First;
+      while not vQueryFC.Eof do
+      begin
+        // TList<record>: pega -> altera -> devolve
+        vTmp := ACampanhaOrcamento[vQtdCampanhas];
+        vTmp.Orcamento := vQueryFC.FieldByName('nrorc').AsInteger;
+        ACampanhaOrcamento[vQtdCampanhas] := vTmp;
+
+        // Se quiser preencher o JSON de orçamentos aqui, só faz se ALista foi passado
+        if Assigned(ALista) then
         begin
-          if AInfo.Cpf = 0 then
-            AInfo.Cpf := TRecCampanhaClienteOrcamentos(ACampanhaOrcamento[0]).Cpf;
-
-          for vQtdCampanhas := 0 to ACampanhaOrcamento.Count - 1 do
-          begin
-            vQueryFC.Close;
-            vQueryFC.SQL.Clear;
-            vQueryFC.SQL.Add(RetornarSelectFC15000OrcamentosCampanhas(TRecCampanhaClienteOrcamentos(ACampanhaOrcamento[vQtdCampanhas]).Cpf));
-            vQueryFC.Open;
-
-            if not (vQueryFC.IsEmpty) then
-            begin
-              vQueryFC.First;
-              while not vQueryFC.Eof do
-              begin
-                PreencherJSONArrayOrcamento(
-                  ALista,
-                  TRecCampanhaClienteOrcamentos(ACampanhaOrcamento[vQtdCampanhas]).NomeCampanha,
-                  'R',
-                  vQueryFC.FieldByName('cdfil').AsInteger,
-                  vQueryFC.FieldByName('nrorc').AsInteger,
-                  vQueryFC.FieldByName('vrrqu').AsFloat,
-                  TRecCampanhaClienteOrcamentos(ACampanhaOrcamento[vQtdCampanhas]).PercentualFormula,
-                  vQueryFC.FieldByName('vrrqu').AsFloat * (TRecCampanhaClienteOrcamentos(ACampanhaOrcamento[vQtdCampanhas]).PercentualFormula / 100),
-                  vQueryFC.FieldByName('vrrqu').AsFloat - (vQueryFC.FieldByName('vrrqu').AsFloat * (TRecCampanhaClienteOrcamentos(ACampanhaOrcamento[vQtdCampanhas]).PercentualFormula / 100)));
-                vQueryFC.Next;
-              end;
-            end;
-          end;
+          PreencherJSONArrayOrcamento(
+            ALista,
+            vTmp.NomeCampanha,
+            'R',
+            vQueryFC.FieldByName('cdfil').AsInteger,
+            vQueryFC.FieldByName('nrorc').AsInteger,
+            vQueryFC.FieldByName('vrrqu').AsFloat,
+            vTmp.PercentualFormula,
+            vQueryFC.FieldByName('vrrqu').AsFloat * (vTmp.PercentualFormula / 100),
+            vQueryFC.FieldByName('vrrqu').AsFloat - (vQueryFC.FieldByName('vrrqu').AsFloat * (vTmp.PercentualFormula / 100))
+          );
         end;
-      except
-        Exit;
-      end;
-    end else
-    begin
-      try
-        /// falta implementar a parte do privilege
-      except
-        on e: Exception do
-        raise Exception.Create('Venda já possui Desconto')
+
+        vQueryFC.Next;
       end;
     end;
+
   finally
     vQueryFC.Free;
     vQueryPRV.Free;
@@ -1440,7 +1466,8 @@ begin
                 ALista,
                 CAMPANHA_POWERTRAINING,
                 vQuerySelecionaDesconto.FieldValues['tpitm'],
-                ,//orcamento
+                5,//filial
+                5,//orcamento
                 vQuerySelecionaDesconto.FieldValues['pruni'],// valor unitario
                 vPercentualDesconto,
                 vValorDesconto,

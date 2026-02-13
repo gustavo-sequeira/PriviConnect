@@ -9,6 +9,7 @@ procedure PreencherJSONArrayOrcamento(out AJSONArray: TJSONArray; ACampanha, ATi
 procedure PreencherJSONArrayProdutoOrcamento(out AJSONArray: TJSONArray; ACampanha, ANomeProduto : string; ACodigoProduto: Integer; AValorUnitario, APercentualDesconto, AValorUnitarioDescontado, AValorLiquido: Double);
 procedure PreencherTerminalBalcao(ACpf: Int64; out ATerminalBalcao: TTerminalBalcao; ATipoItem: TTipoItem; AConnection: TFDConnection);
 
+function FloatSQL(const AValue: Double): string;
 function RetornaDescricaoProduto(ACodigoProduto: integer; AConnection: TFDConnection): string;
 function ExisteProduto(ACodigoProduto: Integer; AConstante: array of integer): Boolean;
 function ArrayToSQL(const AArray: array of Integer): string;
@@ -352,6 +353,15 @@ begin
     Result[I] := AArray[I];
 end;
 
+
+function FloatSQL(const AValue: Double): string;
+begin
+  Result := FloatToStrF(AValue, ffFixed,
+    18, // precisão
+    2,  // casas decimais
+    TFormatSettings.Invariant);
+end;
+
 procedure PreencherJSONArrayProdutoOrcamento(out AJSONArray: TJSONArray; ACampanha, ANomeProduto : string; ACodigoProduto: Integer; AValorUnitario, APercentualDesconto, AValorUnitarioDescontado, AValorLiquido: Double);
 var
   vJSONObject: TJSONObject;
@@ -362,10 +372,10 @@ begin
   vJSONObject.AddPair('tipo_item', 'Varejo');
   vJSONObject.AddPair('produto', IntToStr(ACodigoProduto));
   vJSONObject.AddPair('nome_produto', ANomeProduto);
-  vJSONObject.AddPair('valor_total', FloatToStr(AValorUnitario));
-  vJSONObject.AddPair('percentual_desconto', FloatToStr(APercentualDesconto));
-  vJSONObject.AddPair('valor_desconto', FloatToStr(AValorUnitarioDescontado));
-  vJSONObject.AddPair('valor_liquido', FloatToStr(AValorLiquido));
+  vJSONObject.AddPair('valor_total', FloatSQL(AValorUnitario));
+  vJSONObject.AddPair('percentual_desconto', FloatSQL(APercentualDesconto));
+  vJSONObject.AddPair('valor_desconto', FloatSQL(AValorUnitarioDescontado));
+  vJSONObject.AddPair('valor_liquido', FloatSQL(AValorLiquido));
 
   if not ExisteNoJsonProdutoOrcamento(AJSONArray, vJSONObject) then
     AJSONArray.AddElement(vJSONObject)
@@ -383,12 +393,10 @@ begin
   vJSONObject.AddPair('orcamento', IntToStr(AOrcamento));
   vJSONObject.AddPair('tipo_item', IfThen((ATipoItem = 'R'),'Fórmula','Varejo'));
   vJSONObject.AddPair('filial', IntToStr(AFilial));
-  vJSONObject.AddPair(IfThen((ATipoItem = 'R'),'requisicao','produto'), '');
-  vJSONObject.AddPair('descricao', 'Requisição ainda não gerada');
-  vJSONObject.AddPair('valor_total', FloatToStr(AValorUnitario));
-  vJSONObject.AddPair('percentual_desconto', FloatToStr(APercentualDesconto));
-  vJSONObject.AddPair('valor_desconto', FloatToStr(AValorUnitarioDescontado));
-  vJSONObject.AddPair('valor_liquido', FloatToStr(AValorLiquido));
+  vJSONObject.AddPair('valor_total', FloatSQL(AValorUnitario));
+  vJSONObject.AddPair('percentual_desconto', FloatSQL(APercentualDesconto));
+  vJSONObject.AddPair('valor_desconto', FloatSQL(AValorUnitarioDescontado));
+  vJSONObject.AddPair('valor_liquido', FloatSQL(AValorLiquido));
 
   if not ExisteNoJsonOrcamento(AJSONArray, vJSONObject) then
     AJSONArray.AddElement(vJSONObject)
@@ -408,10 +416,10 @@ begin
   vJSONObject.AddPair('filial', IntToStr(AFilial));
   vJSONObject.AddPair(IfThen((ATipoItem = 'R'),'requisicao','produto'), IntToStr(ACodigoProduto));
   vJSONObject.AddPair('descricao', ADescricaoProduto);
-  vJSONObject.AddPair('valor_total', FloatToStr(AValorUnitario));
-  vJSONObject.AddPair('percentual_desconto', FloatToStr(APercentualDesconto));
-  vJSONObject.AddPair('valor_desconto', FloatToStr(AValorUnitarioDescontado));
-  vJSONObject.AddPair('valor_liquido', FloatToStr(AValorLiquido));
+  vJSONObject.AddPair('valor_total', FloatSQL(AValorUnitario));
+  vJSONObject.AddPair('percentual_desconto', FloatSQL(APercentualDesconto));
+  vJSONObject.AddPair('valor_desconto', FloatSQL(AValorUnitarioDescontado));
+  vJSONObject.AddPair('valor_liquido', FloatSQL(AValorLiquido));
 
   if not ExisteNoJson(AJSONArray, vJSONObject) then
     AJSONArray.AddElement(vJSONObject)
@@ -442,7 +450,7 @@ var
   LItem: string;
 begin
   if AObj.GetValue('tipo_item').Value = 'Fórmula' then
-    LItem := AObj.GetValue('requisicao').Value
+    LItem := AObj.GetValue('orcamento').Value
   else
     LItem := AObj.GetValue('produto').Value;
 
@@ -451,22 +459,13 @@ begin
     LItem;
 end;
 
-
 function BuildKeyOrcamento(AObj: TJSONObject): string;
-var
-  LItem: string;
 begin
-  if AObj.GetValue('tipo_item').Value = 'Fórmula' then
-    LItem := AObj.GetValue('requisicao').Value
-  else
-    LItem := AObj.GetValue('produto').Value;
-
   Result :=
     AObj.GetValue('campanha').Value + '|' +
     AObj.GetValue('orcamento').Value + '|' +
     AObj.GetValue('tipo_item').Value + '|' +
-    AObj.GetValue('filial').Value + '|' +
-    LItem;
+    AObj.GetValue('filial').Value;
 end;
 
 function ExisteNoJson(ACampanhas: TJSONArray; ANovo: TJSONObject): Boolean;

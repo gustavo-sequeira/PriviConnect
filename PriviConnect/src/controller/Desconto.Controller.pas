@@ -10,10 +10,7 @@ procedure Registry;
 implementation
 
 uses
-  System.SysUtils,
-  System.StrUtils,
-  System.JSON,
-  Desconto.Model;
+  System.SysUtils, System.StrUtils, System.JSON, Desconto.Model;
 
 function GetTelefoneAsString(const AObj: TJSONObject): string;
 var
@@ -44,7 +41,6 @@ var
   vCampanhas: TJSONArray;
   vDesconto: TDesconto;
   vErro: string;
-
   vTelefone: string;
   vArrProdutos: TJSONArray;
   i: Integer;
@@ -56,54 +52,53 @@ begin
   vErro := '';
 
   try
-  try
-    vBody := Req.Body<TJSONObject>;
-    if not Assigned(vBody) then
-    begin
-      SendError(Res, 'JSON inválido.', 400);
-      Exit;
-    end;
+    try
+      vBody := Req.Body<TJSONObject>;
+      if not Assigned(vBody) then
+      begin
+        SendError(Res, 'JSON inválido.', 400);
+        Exit;
+      end;
 
-    // telefone obrigatório
-    vTelefone := GetTelefoneAsString(vBody);
-    if vTelefone = '' then
-    begin
-      SendError(Res, 'Informe "telefone" (string com DDD).', 400);
-      Exit;
-    end;
+      // telefone obrigatório
+      vTelefone := GetTelefoneAsString(vBody);
+      if vTelefone = '' then
+      begin
+        SendError(Res, 'Informe "telefone" (string com DDD).', 400);
+        Exit;
+      end;
 
-    vDesconto.TelefoneClienteStr := vTelefone;
-    vRetorno.AddPair('telefone', vTelefone);
+      vDesconto.TelefoneClienteStr := vTelefone;
+      vRetorno.AddPair('telefone', vTelefone);
 
-    // produtos opcionais
-    vDesconto.CodigosProdutos.Clear;
-    vArrProdutos := nil;
+      // produtos opcionais
+      vDesconto.CodigosProdutos.Clear;
+      vArrProdutos := nil;
 
-    if vBody.TryGetValue<TJSONArray>('produtos', vArrProdutos) and Assigned(vArrProdutos) then
-    begin
-      for i := 0 to vArrProdutos.Count - 1 do
-        vDesconto.CodigosProdutos.Add(StrToIntDef(vArrProdutos.Items[i].Value, 0));
-    end;
+      if vBody.TryGetValue<TJSONArray>('produtos', vArrProdutos) and Assigned(vArrProdutos) then
+      begin
+        for i := 0 to vArrProdutos.Count - 1 do
+          vDesconto.CodigosProdutos.Add(StrToIntDef(vArrProdutos.Items[i].Value, 0));
+      end;
 
-    // chama model (retorna array flat)
-    vCampanhas := vDesconto.ListarDescontosPorProdutos(vErro);
+      // chama model
+      vCampanhas := vDesconto.ListarDescontosPorProdutos(vErro);
 
-    if Assigned(vCampanhas) and (vCampanhas.Count > 0) then
-    begin
-      // ? flat (sem array dentro de array)
-      vRetorno.AddPair('campanhas', vCampanhas);
-      vCampanhas := nil;
+      if Assigned(vCampanhas) and (vCampanhas.Count > 0) then
+      begin
+        vRetorno.AddPair('campanhas', vCampanhas);
+        vCampanhas := nil;
 
-      Res.Send<TJSONObject>(vRetorno).Status(200);
-      vRetorno := nil;
-    end
-    else
-      SendInfo(Res, 'Nenhuma campanha aplicável para o telefone/produtos informados.', 404);
-
-  except
-    on E: Exception do
-      SendError(Res, E.Message + IfThen(vErro <> '', ' - ' + vErro, ''), 500);
+        Res.Send<TJSONObject>(vRetorno).Status(200);
+        vRetorno := nil;
       end
+      else
+        SendInfo(Res, 'Nenhuma campanha aplicável para o telefone informado.', 404);
+
+    except
+      on E: Exception do
+        SendError(Res, E.Message + IfThen(vErro <> '', ' - ' + vErro, ''), 500);
+    end
 
   finally
     vDesconto.Free;
@@ -111,7 +106,6 @@ begin
     vCampanhas.Free;
   end;
 end;
-
 
 procedure Registry;
 begin

@@ -17,8 +17,6 @@ type
     // Fórmula / Orçamento
     FOrcamento: Integer;
     FFilial: Integer;
-    FRequisicao: string;
-    FDescricao: string;
 
     // Comuns
     FValorTotal: Double;
@@ -34,8 +32,6 @@ type
 
     property orcamento: Integer read FOrcamento write FOrcamento;
     property filial: Integer read FFilial write FFilial;
-    property requisicao: string read FRequisicao write FRequisicao;
-    property descricao: string read FDescricao write FDescricao;
 
     property valor_total: Double read FValorTotal write FValorTotal;
     property percentual_desconto: Double read FPercentualDesconto write FPercentualDesconto;

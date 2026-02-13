@@ -4,7 +4,7 @@ interface
 
 uses
   System.SysUtils, System.Generics.Collections, Desconto.Constantes.Campanhas,
-  FireDAC.Comp.Client;
+  FireDAC.Comp.Client, Desconto.Tipos;
 
 type
 
@@ -53,6 +53,14 @@ type
     function Valida: Boolean;
     function Aplicavel(const AListaProdutos: TList<Integer>): Boolean;
     function PossuiProduto(const AListaProdutos: TList<Integer>): Boolean;
+    function Aplicabilidade(const AListaProdutos: TList<Integer>): TAplicabilidadeInfo;
+  end;
+
+  TCampanhaAplicavel = class
+  public
+    Campanha: ICampanha;
+    Aplicabilidade: TAplicabilidadeInfo;
+    destructor Destroy; override;
   end;
 
   TGerenciadorCampanhas = class
@@ -63,6 +71,7 @@ type
     constructor Create;
     destructor Destroy; override;
     function ObterCampanhasAplicaveis(const AListaProdutos: TList<Integer>): TList<ICampanha>;
+    function ObterCampanhasAplicaveisDetalhado(const AListaProdutos: TList<Integer>): TObjectList<TCampanhaAplicavel>;
   end;
 
   TCampanhaClienteOrcamentos = class
@@ -78,6 +87,68 @@ uses
   Desconto.Base, Desconto.Utils, Desconto.Constantes.Produtos;
 
 { TCampanha }
+
+function TCampanha.Aplicabilidade(const AListaProdutos: TList<Integer>): TAplicabilidadeInfo;
+
+  function CampanhaCobreProduto(const AProduto: Integer): Boolean;
+  var
+    i, j: Integer;
+  begin
+    Result := False;
+
+    if Length(FProdutos) = 0 then
+      Exit(False);
+
+    for i := 0 to Length(FProdutos) - 1 do
+    begin
+      if Length(FProdutos[i]) = 0 then
+        Continue;
+
+      for j := 0 to Length(FProdutos[i]) - 1 do
+      begin
+        if AProduto = FProdutos[i][j] then
+        begin
+          Result := True;
+          Exit; // sai imediatamente
+        end;
+      end;
+    end;
+  end;
+
+var
+  i: Integer;
+  vProduto: Integer;
+begin
+  Result := TAplicabilidadeInfo.Create;
+
+  if (AListaProdutos = nil) or (AListaProdutos.Count = 0) or (Length(FProdutos) = 0) then
+  begin
+    Result.Status := asNenhuma;
+    Exit;
+  end;
+
+  Result.TotalInformados := AListaProdutos.Count;
+
+  // Verifica cobertura produto a produto
+  for i := 0 to AListaProdutos.Count - 1 do
+  begin
+    vProduto := AListaProdutos[i];
+    if CampanhaCobreProduto(vProduto) then
+    begin
+      Inc(Result.TotalCobertos);
+      Result.ProdutosCobertos.Add(vProduto);
+    end
+    else
+      Result.ProdutosNaoCobertos.Add(vProduto);
+  end;
+
+  if Result.TotalCobertos = 0 then
+    Result.Status := asNenhuma
+  else if Result.TotalCobertos = Result.TotalInformados then
+    Result.Status := asTotal
+  else
+    Result.Status := asParcial;
+end;
 
 constructor TCampanha.Create(const ANome: string; const AProdutos: TArray<TArray<Integer>>; const AValida: Boolean);
 begin
@@ -108,27 +179,15 @@ end;
 
 function TCampanha.Aplicavel(const AListaProdutos: TList<Integer>): Boolean;
 var
-  vContadorArray, vContadorLista, vContadorConstante, vProduto: integer;
+  vInfo: TAplicabilidadeInfo;
 begin
-  Result := False;
-  for vContadorLista := 0 to AListaProdutos.Count - 1 do
-  begin
-    vProduto := AListaProdutos[vContadorLista];
-    for vContadorArray := 0 to High(FProdutos) do
-      for vContadorConstante := 0 to High(FProdutos[vContadorArray]) - 1 do
-        if vProduto = FProdutos[vContadorArray][vContadorConstante] then
-          Exit(True);
-  end;
-
-  if AListaProdutos.Count = 0 then
-    Exit(True); // se ligar aqui quando nao tiver codigo
-
-  if Length(FProdutos) = 0 then
-  begin
-    Exit(True);
+  vInfo := Aplicabilidade(AListaProdutos);
+  try
+    Result := vInfo.Status <> asNenhuma;
+  finally
+    vInfo.Free;
   end;
 end;
-
 
 { TGerenciadorCampanhas }
 
@@ -177,13 +236,45 @@ end;
 
 function TGerenciadorCampanhas.ObterCampanhasAplicaveis(const AListaProdutos: TList<Integer>): TList<ICampanha>;
 var
-  Campanha: ICampanha;
+  Det: TObjectList<TCampanhaAplicavel>;
+  i: Integer;
 begin
   Result := TList<ICampanha>.Create;
-  for Campanha in FLista do
+
+  Det := ObterCampanhasAplicaveisDetalhado(AListaProdutos);
+  try
+    for i := 0 to Det.Count - 1 do
+      Result.Add(Det[i].Campanha);
+  finally
+    Det.Free;
+  end;
+end;
+
+function TGerenciadorCampanhas.ObterCampanhasAplicaveisDetalhado(
+  const AListaProdutos: TList<Integer>): TObjectList<TCampanhaAplicavel>;
+var
+  C: ICampanha;
+  Item: TCampanhaAplicavel;
+  Info: TAplicabilidadeInfo;
+begin
+  Result := TObjectList<TCampanhaAplicavel>.Create(True);
+
+  for C in FLista do
   begin
-    if Campanha.Valida and Campanha.Aplicavel(AListaProdutos) then
-      Result.Add(Campanha);
+    if not C.Valida then
+      Continue;
+
+    Info := (C as TCampanha).Aplicabilidade(AListaProdutos);
+    if Info.Status = asNenhuma then
+    begin
+      Info.Free;
+      Continue;
+    end;
+
+    Item := TCampanhaAplicavel.Create;
+    Item.Campanha := C;
+    Item.Aplicabilidade := Info;
+    Result.Add(Item);
   end;
 end;
 
@@ -248,6 +339,14 @@ begin
     Result.Add(Item);
     Qry.Next;
   end;
+end;
+
+{ TCampanhaAplicavel }
+
+destructor TCampanhaAplicavel.Destroy;
+begin
+  Aplicabilidade.Free;
+  inherited;
 end;
 
 end.

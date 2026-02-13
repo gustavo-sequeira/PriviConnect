@@ -75,7 +75,6 @@ begin
           vQuerySelecionaDesconto.Open(
             RetornarSelectFC32110Itens(AInfo.TerminalBalcao[vQtdContadorCampanhas].Filial, AInfo.TerminalBalcao[vQtdContadorCampanhas].Cupom, vTipoItem));
         tcWebService:
-        // mudar isso aqui
           vQuerySelecionaDesconto.Open(
             RetornarSelectFC03000Produtos(AProdutos, AInfo.TerminalBalcao[vQtdContadorCampanhas].Filial));
       end;
@@ -513,7 +512,19 @@ begin
     ACampanhaOrcamento.AddRange(TCampanhaClienteOrcamentos.GetList(vQueryPRV));
 
     if ACampanhaOrcamento.Count = 0 then
-      Exit;
+    begin
+      vQueryFC.Close;
+      vQueryFC.SQL.Clear;
+      vQueryFC.SQL.Add(
+        RetornarSelectFC07200Cpf(AInfo.Telefone));
+      vQueryFC.Open;
+
+      if vQueryFC.IsEmpty then
+        exit;
+
+      vCpfInterno := vQueryFC.FieldByName('CPF').AsInteger;
+
+    end;
 
     // 2) CPF interno vindo do banco (NÃO expõe isso no response)
     // (mantém compatibilidade com rotinas da Fórmula Certa que ainda usam CPF)
@@ -559,7 +570,6 @@ begin
             vQueryFC.FieldByName('vrrqu').AsFloat - (vQueryFC.FieldByName('vrrqu').AsFloat * (vTmp.PercentualFormula / 100))
           );
         end;
-
         vQueryFC.Next;
       end;
     end;

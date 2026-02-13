@@ -10,7 +10,7 @@ type
     FTelefone: string;
     FProdutos: TArray<Integer>;
   published
-    property telefone: string read FTelefone write FTelefone;           // obrigatório
+    property telefone: string read FTelefone write FTelefone;          // obrigatório
     property produtos: TArray<Integer> read FProdutos write FProdutos; // opcional
   end;
 

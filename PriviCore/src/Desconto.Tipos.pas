@@ -11,9 +11,22 @@ unit Desconto.Tipos;
 
 interface
 
-uses IBX.IBQuery, IBX.IBDatabase, FireDAC.Comp.Client;
+uses IBX.IBQuery, IBX.IBDatabase, FireDAC.Comp.Client, System.Generics.Collections;
 
 type
+  TAplicabilidadeStatus = (asNenhuma, asParcial, asTotal);
+
+  TAplicabilidadeInfo = record
+    Status: TAplicabilidadeStatus;
+    TotalInformados: Integer;
+    TotalCobertos: Integer;
+    ProdutosCobertos: TList<Integer>;
+    ProdutosNaoCobertos: TList<Integer>;
+
+    class function Create: TAplicabilidadeInfo; static;
+    procedure Free;
+  end;
+
   TTipoItem = (tiFormula, tiVarejo, tiAmbos);
 
   TTipoChamada = (tcDesktop, tcWebService);
@@ -58,6 +71,23 @@ type
   end;
 
 implementation
+
+{ TAplicabilidadeInfo }
+
+class function TAplicabilidadeInfo.Create: TAplicabilidadeInfo;
+begin
+  Result.Status := asNenhuma;
+  Result.TotalInformados := 0;
+  Result.TotalCobertos := 0;
+  Result.ProdutosCobertos := TList<Integer>.Create;
+  Result.ProdutosNaoCobertos := TList<Integer>.Create;
+end;
+
+procedure TAplicabilidadeInfo.Free;
+begin
+  ProdutosCobertos.Free;
+  ProdutosNaoCobertos.Free;
+end;
 
 end.
 

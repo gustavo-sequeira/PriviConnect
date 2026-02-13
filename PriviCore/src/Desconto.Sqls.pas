@@ -25,6 +25,9 @@ function RetornarUpdateItensTerminalBalcaoFC32110TipoDescontoValores(AFilial, AC
 
 {$REGION ' SELECTS'}
 
+// tabela: fc07200 - cpf
+function RetornarSelectFC07200Cpf(ATelefone: Integer): string;
+
 // tabela: fc03000 - produtos
 function RetornarSelectFC03000Produtos(AProdutos: TList<Integer>; APercentual: Double): string;
 
@@ -57,6 +60,21 @@ implementation
 
 uses System.SysUtils, Desconto.Utils, Desconto.Constantes.Usuarios;
 
+function RetornarSelectFC07200Cpf(ATelefone: Integer): string;
+var
+  vSQL: string;
+begin
+  vSQL :=
+    '	        select first 1 trim(fc07000.nrcnpj) as cpf ' +
+    '	          from fc07200 ' +
+    '	    inner join fc07000 on fc07200.cdcli = fc07000.cdcli ' +
+    '	         where ((trim(fc07200.nrddd) || trim(fc07200.nrtel) = coalesce('+IntToStr(ATelefone)+', fc07200.nrddd || fc07200.nrtel)) or ' +
+    '	                (trim(fc07200.nrddd2) || trim(fc07200.nrtel2) = coalesce('+IntToStr(ATelefone)+', fc07200.nrddd2 || fc07200.nrtel2)) or ' +
+    '	                (trim(fc07200.nrdddfax) || trim(fc07200.nrfax) = coalesce('+IntToStr(ATelefone)+', fc07200.nrdddfax || fc07200.nrfax))) ' +
+    '	       order by dthralt desc ' ;
+  Result := vSQL;
+end;
+
 function RetornarSelectFC03000Produtos( AProdutos: TList<Integer>; APercentual: Double): string;
 var
   vSQL, vProdutos: string;
@@ -64,7 +82,6 @@ var
   Arr: TArray<string>;
   I: Integer;
 begin
-  FS := TFormatSettings.Invariant;
 
   if AProdutos.Count = 0 then
     Exit('select 1 from rdb$database where 1 = 0');
@@ -81,16 +98,18 @@ begin
     '        1 as quant, ' +
     '        prd.descr as descricao, ' +
     '        prd.prven as pruni, ' +
+    '        prd.prven as valor_total, ' +
     '        ''V'' as tpitm, ' +
-//    '        prd.prven as valor_total, ' +
-    '        ' + FloatToStr(APercentual, FS) + ' as percentual_desconto, ' +
-    '        (prd.prven * ' + FloatToStr(APercentual, FS) + ' / 100) as valor_desconto, ' +
-    '        (prd.prven - (prd.prven * ' + FloatToStr(APercentual, FS) + ' / 100)) as valor_liquido ' +
+    '        ' + FloatSQL(APercentual) + ' as percentual_desconto, ' +
+    '        (prd.prven * ' + FloatSQL(APercentual) + ' / 100) as valor_desconto, ' +
+    '        (prd.prven - (prd.prven * ' + FloatSQL(APercentual) + ' / 100)) as valor_liquido ' +
     ' from fc03000 prd ' +
     ' where 1 = 1 ' +
     '   and cdpro in (' + vProdutos + ') ' +
     '   and situa = ''A'' ' +
-    '   and indinsumo = ''N'' ';
+    '   and indinsumo = ''N'' ' +
+    '   and grupo = ''R'' ' ;// Revenda
+
 
   Result := vSQL;
 end;

@@ -35,6 +35,11 @@ uses
   uMiddlewareLogJson in 'src\class\uMiddlewareLogJson.pas',
   Desconto.ResponseModel in 'src\model\Desconto.ResponseModel.pas';
 
+function GetVersao: string;
+begin
+  result := '1.0.3';
+end;
+
 function GetPorta: Integer;
 var
   Ini: TIniFile;
@@ -87,11 +92,6 @@ end;
 procedure ResetColor;
 begin
   SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
-end;
-
-function GetVersao: string;
-begin
-  result := '1.0.2';
 end;
 
 procedure SwaggerConfig;
@@ -247,12 +247,6 @@ begin
   Write('       API (POST)     : ');
   ResetColor;
   Writeln('http://'+GetURL+':'+IntToStr(GetPorta)+'/descontos');
-                                                                        {
-  ConsoleColor(6);
-  Write('       API (GET)      : ');
-  ResetColor;
-  Writeln('http://'+GetURL+':'+IntToStr(GetPorta)+'/campanhas');       }
-
 
   ConsoleColor(6);
   Write('       SWAGGER (DOC)  : ');
